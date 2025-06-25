@@ -1,15 +1,18 @@
 package entystal.ledger
 
-import entystal.model.{Asset, Balance, Liability}
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import entystal.model.DataAsset
+import zio.test.{ZIOSpecDefault, assertTrue, Spec, TestEnvironment}
 
-class LedgerSpec extends AnyFlatSpec with Matchers {
-  "A Ledger" should "update balance" in {
-    val ledger = Ledger(Balance(Nil, Nil))
-      .addAsset(Asset("cash", 100))
-      .addLiability(Liability("loan", 50))
-
-    ledger.balance.netWorth shouldBe 50
-  }
+object LedgerSpec extends ZIOSpecDefault {
+  override def spec: Spec[TestEnvironment, Any] =
+    suite("LedgerSpec")(
+      test("Registra y recupera activos correctamente") {
+        val asset = DataAsset("id-1", "Datos relevantes", 1L, BigDecimal(42))
+        for {
+          ledger  <- InMemoryLedger.live.build.map(_.get)
+          _       <- ledger.recordAsset(asset)
+          history <- ledger.getHistory
+        } yield assertTrue(history.contains(AssetEntry(asset)))
+      }
+    )
 }
