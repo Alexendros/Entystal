@@ -1,11 +1,15 @@
 package entystal
 
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
+import zio.test.{ZIOSpecDefault, assertTrue, Spec, TestEnvironment}
 
-class EntystalModuleSpec extends AnyFlatSpec with Matchers {
-  "EntystalModule" should "provide a demo ledger" in {
-    val ledger = EntystalModule.demoLedger
-    ledger.balance.netWorth shouldBe 800
-  }
+object EntystalModuleSpec extends ZIOSpecDefault {
+  override def spec: Spec[TestEnvironment, Any] =
+    suite("EntystalModuleSpec")(
+      test("la capa proporciona un ledger vac\u00edo") {
+        for {
+          ledger   <- EntystalModule.layer.build.map(_.get)
+          history  <- ledger.getHistory
+        } yield assertTrue(history.isEmpty)
+      }
+    )
 }

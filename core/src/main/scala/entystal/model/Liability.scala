@@ -1,3 +1,13 @@
 package entystal.model
 
-final case class Liability(id: String, amount: BigDecimal)
+trait Liability {
+  def id: String
+  def timestamp: Long
+  def amount: BigDecimal
+}
+
+final case class BasicLiability(
+    id: String,
+    amount: BigDecimal,
+    timestamp: Long
+) extends Liability

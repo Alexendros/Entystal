@@ -1,3 +1,13 @@
 package entystal.model
 
-final case class Investment(id: String, quantity: BigDecimal)
+trait Investment {
+  def id: String
+  def timestamp: Long
+  def quantity: BigDecimal
+}
+
+final case class BasicInvestment(
+    id: String,
+    quantity: BigDecimal,
+    timestamp: Long
+) extends Investment
