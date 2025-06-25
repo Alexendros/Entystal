@@ -11,4 +11,18 @@ final case class DataAsset(
     data: String,
     timestamp: Long,
     value: BigDecimal
+
+final case class CodeAsset(
+    id: String,
+    repo: String,
+    timestamp: Long,
+    value: BigDecimal
+) extends Asset
+
+final case class ReputationAsset(
+    id: String,
+    score: Int,
+    timestamp: Long,
+    value: BigDecimal
+) extends Asset
 ) extends Asset
