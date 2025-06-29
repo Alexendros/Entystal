@@ -22,3 +22,15 @@ sbt "core/run --mode asset --assetId id-101 --assetDesc 'Datos relevantes CLI'"
 ```
 
 Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
+
+## Hook de Git
+
+Para habilitar el hook de pre-commit:
+
+```bash
+ln -s ../../scripts/pre-commit .git/hooks/pre-commit
+```
+
+## Integración continua
+
+Este repositorio cuenta con un flujo de GitHub Actions que ejecuta `sbt scalafmtAll` y `sbt test` en cada push.
