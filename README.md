@@ -8,7 +8,8 @@ Revisa la carpeta `core/` para el módulo principal.
 
 ## Uso
 
-Requiere [sbt](https://www.scala-sbt.org/) instalado.
+Necesitas tener Java (JDK) y [sbt](https://www.scala-sbt.org/) instalados.
+Si no cuentas con sbt, revisa [docs/setup-sbt.md](docs/setup-sbt.md).
 
 ```bash
 sbt scalafmtAll   # Formateo de código
