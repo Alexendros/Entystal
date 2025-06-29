@@ -46,3 +46,4 @@ object InMemoryLedger {
         override def getHistory: UIO[List[LedgerEntry]] = ref.get
       }
     }
+}

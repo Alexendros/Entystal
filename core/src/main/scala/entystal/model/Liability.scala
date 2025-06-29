@@ -10,6 +10,7 @@ final case class BasicLiability(
     id: String,
     amount: BigDecimal,
     timestamp: Long
+) extends Liability
 
 final case class EthicalLiability(
     id: String,
@@ -30,5 +31,4 @@ final case class LegalLiability(
     law: String,
     timestamp: Long,
     amount: BigDecimal
-) extends Liability
 ) extends Liability

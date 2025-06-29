@@ -10,6 +10,7 @@ final case class BasicInvestment(
     id: String,
     quantity: BigDecimal,
     timestamp: Long
+) extends Investment
 
 final case class EconomicInvestment(
     id: String,
@@ -27,5 +28,4 @@ final case class OperationalInvestment(
     id: String,
     quantity: BigDecimal,
     timestamp: Long
-) extends Investment
 ) extends Investment

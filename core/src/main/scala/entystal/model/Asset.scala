@@ -11,6 +11,7 @@ final case class DataAsset(
     data: String,
     timestamp: Long,
     value: BigDecimal
+) extends Asset
 
 final case class CodeAsset(
     id: String,
@@ -24,5 +25,4 @@ final case class ReputationAsset(
     score: Int,
     timestamp: Long,
     value: BigDecimal
-) extends Asset
 ) extends Asset
