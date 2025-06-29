@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Comprobar conflictos de fusi\u00f3n
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git merge --no-commit --no-ff origin/${{ github.base_ref }} || { echo "Conflictos detectados con la rama base"; exit 1; }
+      - name: Configurar Java y sbt
+        uses: coursier/setup-action@v1
+        with:
+          apps: sbt
+      - name: Formateo y pruebas
+        run: |
+          sbt scalafmtCheckAll
+          sbt test
