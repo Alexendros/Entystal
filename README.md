@@ -27,17 +27,17 @@ La salida debería mostrar algo similar a:
 Registrado activo: DataAsset(id-101, Datos relevantes CLI, 172xxxxxxx, 1)
 ```
 
-Para registrar un pasivo o una inversión:
-
-```bash
-sbt "core/run --mode liability --assetId liab-1 --liabilityDesc 'Multa legal'"
-```
-
-```bash
-sbt "core/run --mode investment --assetId inv-1 --investmentQty 5"
-```
-
 Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
+
+## Pruebas de integración
+
+Las pruebas que ejercitan `SqlLedger` leen las credenciales de la base de datos
+desde las variables de entorno `PGUSER` y `PGPASSWORD`. Configúralas antes de
+ejecutar:
+
+```bash
+sbt test
+```
 
 ## Contribución
 
