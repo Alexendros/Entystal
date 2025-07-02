@@ -42,6 +42,9 @@ ejecutar:
 sbt test
 ```
 
+Estas pruebas se ejecutan solo si PostgreSQL está activo y accesible en
+`localhost:5432`. Si no es así se marcan como **ignoradas** automáticamente.
+
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).

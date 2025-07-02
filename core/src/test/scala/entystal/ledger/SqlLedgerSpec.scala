@@ -11,11 +11,25 @@ object SqlLedgerSpec extends ZIOSpecDefault {
   private val dbUser = sys.env.getOrElse("PGUSER", "postgres")
   private val dbPass = sys.env.getOrElse("PGPASSWORD", "password")
 
+  private val dbUrl = "jdbc:postgresql://localhost:5432/entystal"
+
+  /** Intento de conexión para saber si PostgreSQL está disponible */
+  private val connectionCheck: Task[Boolean] =
+    ZIO.attemptBlocking {
+      val conn = java.sql.DriverManager.getConnection(dbUrl, dbUser, dbPass)
+      try {
+        val st = conn.createStatement()
+        st.execute("SELECT 1")
+        true
+      } finally conn.close()
+    }.tapError(e => ZIO.logError(s"No se pudo conectar a PostgreSQL: ${e.getMessage}"))
+      .orElseSucceed(false)
+
   private val transactorLayer = ZLayer.scoped {
     ZIO.attempt {
       Transactor.fromDriverManager[Task](
         "org.postgresql.Driver",
-        "jdbc:postgresql://localhost:5432/entystal",
+        dbUrl,
         dbUser,
         dbPass
       )
@@ -35,5 +49,5 @@ object SqlLedgerSpec extends ZIOSpecDefault {
         case _             => false
       })
     }
-  ).provideLayerShared(transactorLayer)
+  ).provideLayerShared(transactorLayer).whenZIO(connectionCheck)
 }
