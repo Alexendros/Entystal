@@ -14,7 +14,7 @@ lazy val core = (project in file("core"))
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio"          % "2.0.15",
       "dev.zio" %% "zio-logging"  % "2.1.13",
-      "dev.zio" %% "zio-json"     % "0.4.3",
+      "dev.zio" %% "zio-json"     % "0.6.2",
       "org.tpolecat" %% "doobie-core"  % "1.0.0-RC4",
       "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4",
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
