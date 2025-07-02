@@ -1,20 +1,18 @@
-# Guía de contribución
+# Protocolo para Pull Requests
 
-## Preparación
-Ejecuta antes de cada commit:
+Sigue estos pasos para minimizar conflictos al enviar tus cambios:
 
-```bash
-sbt scalafmtAll
-sbt test
-```
+1. **Crea una rama** a partir de `main` con un nombre descriptivo.
+2. **Sincroniza frecuentemente** ejecutando:
+   ```bash
+   git pull --rebase origin main
+   ```
+3. Antes de abrir el PR, ejecuta localmente:
+   ```bash
+   sbt scalafmtAll
+   sbt test
+   ```
+4. Abre el PR y verifica que la acci\u00f3n de CI pase. Si falla el paso *Comprobar conflictos de fusi\u00f3n*, realiza un `git rebase origin/main` para resolverlos y vuelve a subir tu rama.
+5. Una vez aprobado, el PR se fusionar\u00e1 usando *squash* o *rebase* para mantener un historial limpio.
 
-Esto asegura un formato uniforme y pruebas en verde.
-
-## Revisión
-Revisa tu diff buscando marcas de conflicto como `<<<<<<<` o `>>>>>>>` y resuélvelas antes de confirmar.
-
-## Pull Request
-1. Verifica que los comandos de preparación no generen errores.
-2. Asegúrate de que no existen marcas de conflicto.
-3. Actualiza tu rama con `main`.
-4. Abre un PR limpio y describe brevemente tus cambios.
+Este flujo ayuda a mantener un repositorio ordenado y evita la mayor\u00eda de conflictos.

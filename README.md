@@ -8,8 +8,7 @@ Revisa la carpeta `core/` para el módulo principal.
 
 ## Uso
 
-Necesitas tener Java (JDK) y [sbt](https://www.scala-sbt.org/) instalados.
-Si no cuentas con sbt, revisa [docs/setup-sbt.md](docs/setup-sbt.md).
+Requiere [sbt](https://www.scala-sbt.org/) instalado.
 
 ```bash
 sbt scalafmtAll   # Formateo de código
@@ -22,16 +21,14 @@ Ejemplo de registro por CLI:
 sbt "core/run --mode asset --assetId id-101 --assetDesc 'Datos relevantes CLI'"
 ```
 
-Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
+La salida debería mostrar algo similar a:
 
-## Hook de Git
-
-Para habilitar el hook de pre-commit:
-
-```bash
-ln -s ../../scripts/pre-commit .git/hooks/pre-commit
+```
+Registrado activo: DataAsset(id-101, Datos relevantes CLI, 172xxxxxxx, 1)
 ```
 
-## Integración continua
+Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
 
-Este repositorio cuenta con un flujo de GitHub Actions que ejecuta `sbt scalafmtAll` y `sbt test` en cada push.
+## Contribución
+
+Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).

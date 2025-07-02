@@ -23,11 +23,14 @@ object SqlLedgerSpec extends ZIOSpecDefault {
     test("Registra y recupera un activo persistente") {
       val asset = DataAsset("id-psql-1", "Activo PSQL", 123L, BigDecimal(99))
       for {
-        xa     <- ZIO.service[Transactor[Task]]
-        ledger  = new SqlLedger(xa)
-        _      <- ledger.recordAsset(asset)
-        // TODO: implementar getHistory y verificar contenido
-      } yield assertCompletes
+        xa      <- ZIO.service[Transactor[Task]]
+        ledger   = new SqlLedger(xa)
+        _       <- ledger.recordAsset(asset)
+        history <- ledger.getHistory
+      } yield assertTrue(history.exists {
+        case AssetEntry(a) => a.id == asset.id
+        case _             => false
+      })
     }
   ).provideLayerShared(transactorLayer)
 }
