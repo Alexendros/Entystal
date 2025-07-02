@@ -44,3 +44,6 @@ sbt test
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).
+## Licencia
+
+Este proyecto se distribuye bajo la licencia [MIT](LICENSE).
