@@ -9,31 +9,51 @@ import doobie.util.transactor.Transactor
 /** Ledger persistente sobre PostgreSQL usando Doobie */
 class SqlLedger(xa: Transactor[Task]) extends Ledger {
   /** Inserta un activo genérico en la tabla 'asset'. */
-  override def recordAsset(asset: Asset): UIO[Unit] =
-    sql"INSERT INTO asset (id, description, timestamp) VALUES (${asset.id}, ${asset.toString}, ${asset.timestamp})"
+  override def recordAsset(asset: Asset): UIO[Unit] = {
+    val desc = asset match {
+      case DataAsset(_, data, _, _)        => data
+      case CodeAsset(_, repo, _, _)        => repo
+      case ReputationAsset(_, score, _, _) => s"score: $score"
+    }
+    sql"INSERT INTO asset (id, description, timestamp) VALUES (${asset.id}, $desc, ${asset.timestamp})"
       .update
       .run
       .transact(xa)
       .orDie
       .unit
+  }
 
   /** Inserta un pasivo genérico en la tabla 'liability'. */
-  override def recordLiability(liability: Liability): UIO[Unit] =
-    sql"INSERT INTO liability (id, description, timestamp) VALUES (${liability.id}, ${liability.toString}, ${liability.timestamp})"
+  override def recordLiability(liability: Liability): UIO[Unit] = {
+    val desc = liability match {
+      case BasicLiability(_, _, _)           => "basic"
+      case EthicalLiability(_, description, _, _) => description
+      case StrategicLiability(_, reason, _, _)    => reason
+      case LegalLiability(_, law, _, _)          => law
+    }
+    sql"INSERT INTO liability (id, description, timestamp) VALUES (${liability.id}, $desc, ${liability.timestamp})"
       .update
       .run
       .transact(xa)
       .orDie
       .unit
+  }
 
   /** Inserta una inversión genérica en la tabla 'investment'. */
-  override def recordInvestment(investment: Investment): UIO[Unit] =
-    sql"INSERT INTO investment (id, description, timestamp) VALUES (${investment.id}, ${investment.toString}, ${investment.timestamp})"
+  override def recordInvestment(investment: Investment): UIO[Unit] = {
+    val desc = investment match {
+      case BasicInvestment(_, quantity, _)      => quantity.toString
+      case EconomicInvestment(_, quantity, _)   => quantity.toString
+      case HumanInvestment(_, quantity, _)      => quantity.toString
+      case OperationalInvestment(_, quantity, _) => quantity.toString
+    }
+    sql"INSERT INTO investment (id, description, timestamp) VALUES (${investment.id}, $desc, ${investment.timestamp})"
       .update
       .run
       .transact(xa)
       .orDie
       .unit
+  }
 
   /** Recupera el historial completo de eventos de las tres tablas. */
   override def getHistory: UIO[List[LedgerEntry]] = {

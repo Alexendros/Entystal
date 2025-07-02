@@ -8,13 +8,16 @@ import entystal.model._
 
 /** Pruebas de integración del SqlLedger usando PostgreSQL */
 object SqlLedgerSpec extends ZIOSpecDefault {
+  private val dbUser = sys.env.getOrElse("PGUSER", "postgres")
+  private val dbPass = sys.env.getOrElse("PGPASSWORD", "password")
+
   private val transactorLayer = ZLayer.scoped {
     ZIO.attempt {
       Transactor.fromDriverManager[Task](
         "org.postgresql.Driver",
         "jdbc:postgresql://localhost:5432/entystal",
-        "postgres",
-        "password"
+        dbUser,
+        dbPass
       )
     }
   }
@@ -28,7 +31,7 @@ object SqlLedgerSpec extends ZIOSpecDefault {
         _       <- ledger.recordAsset(asset)
         history <- ledger.getHistory
       } yield assertTrue(history.exists {
-        case AssetEntry(a) => a.id == asset.id
+        case AssetEntry(a) => a.id == asset.id && a.isInstanceOf[DataAsset] && a.asInstanceOf[DataAsset].data == asset.data
         case _             => false
       })
     }

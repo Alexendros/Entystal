@@ -8,7 +8,9 @@ Revisa la carpeta `core/` para el módulo principal.
 
 ## Uso
 
-Requiere [sbt](https://www.scala-sbt.org/) instalado.
+Requiere [sbt](https://www.scala-sbt.org/) instalado. Si no lo tienes,
+puedes ejecutar el script `scripts/install_sbt.sh` (requiere permisos de
+superusuario y acceso a internet).
 
 ```bash
 sbt scalafmtAll   # Formateo de código
@@ -55,6 +57,16 @@ Registrado activo: DataAsset(id-101, Datos relevantes CLI, 172xxxxxxx, 1)
    )
    ```
    Sustituye `entystal_user` y `tu_clave` por tus valores reales.
+
+## Pruebas de integración
+
+Las pruebas que ejercitan `SqlLedger` leen las credenciales de la base de datos
+desde las variables de entorno `PGUSER` y `PGPASSWORD`. Configúralas antes de
+ejecutar:
+
+```bash
+sbt test
+```
 
 ## Contribución
 
