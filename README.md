@@ -8,7 +8,9 @@ Revisa la carpeta `core/` para el módulo principal.
 
 ## Uso
 
-Requiere [sbt](https://www.scala-sbt.org/) instalado.
+Requiere [sbt](https://www.scala-sbt.org/) instalado. Si no lo tienes,
+puedes ejecutar el script `scripts/install_sbt.sh` (requiere permisos de
+superusuario y acceso a internet).
 
 ```bash
 sbt scalafmtAll   # Formateo de código
