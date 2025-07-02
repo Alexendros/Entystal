@@ -27,7 +27,6 @@ La salida debería mostrar algo similar a:
 Registrado activo: DataAsset(id-101, Datos relevantes CLI, 172xxxxxxx, 1)
 ```
 
-
 Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
 
 ## Pruebas de integración
