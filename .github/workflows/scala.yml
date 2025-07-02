@@ -14,6 +14,7 @@ jobs:
       - uses: coursier/setup-action@v1
         with:
           jvm: temurin:17
+          apps: sbt
       - name: Formateo y pruebas
         run: |
           sbt scalafmtAll
