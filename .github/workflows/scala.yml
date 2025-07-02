@@ -34,6 +34,7 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: password
         run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
+
       - name: Formateo y pruebas
         env:
           PGUSER: postgres
