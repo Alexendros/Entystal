@@ -31,7 +31,7 @@ object SqlLedgerSpec extends ZIOSpecDefault {
         _       <- ledger.recordAsset(asset)
         history <- ledger.getHistory
       } yield assertTrue(history.exists {
-        case AssetEntry(a) => a.id == asset.id
+        case AssetEntry(a) => a.id == asset.id && a.isInstanceOf[DataAsset] && a.asInstanceOf[DataAsset].data == asset.data
         case _             => false
       })
     }
