@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+if ! command -v sbt >/dev/null 2>&1; then
+  echo "sbt no encontrado. Ejecutando scripts/install_sbt.sh" >&2
+  ./scripts/install_sbt.sh
+  if ! command -v sbt >/dev/null 2>&1; then
+    echo "No fue posible instalar sbt" >&2
+    exit 1
+  fi
+fi
+
 sbt scalafmtAll
 sbt test
 
