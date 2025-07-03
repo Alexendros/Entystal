@@ -1,56 +1,84 @@
 # Entystal
 
-Esqueleto de proyecto Scala para aplicaciones de trazabilidad, balance y certificación ética.
+Sistema funcional en Scala para trazabilidad ética y registro auditable de activos, pasivos e inversiones.
 
 ## Estructura
 
-Revisa la carpeta `core/` para el módulo principal.
+El código principal se encuentra en la carpeta `core/` y está organizado en módulos de modelo, ledger y vistas (CLI y GUI).
 
-## Uso
+## Funcionalidades principales
 
-Requiere [sbt](https://www.scala-sbt.org/) instalado.
-Si no lo tienes, ejecuta `scripts/install_sbt.sh`. Este script intenta usar `apt`
-y, si no está disponible, descarga `sbt` directamente desde GitHub para dejarlo
-listo en tu sistema.
+- Ledger en memoria y opción de persistencia en PostgreSQL.
+- Interfaz de línea de comandos (CLI) para registrar eventos contables.
+- Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
+- Generación de JAR ejecutable mediante `sbt-assembly`.
 
-```bash
-sbt scalafmtAll   # Formateo de código
-sbt test          # Ejecutar pruebas
-sbt "core/runMain entystal.gui.GuiApp"  # Lanzar la interfaz gráfica
-```
+## Requisitos
 
-Ejemplo de registro por CLI:
+- Java JDK 8 o superior.
+- [sbt](https://www.scala-sbt.org/). Si no lo tienes, ejecuta `scripts/install_sbt.sh` para instalarlo automáticamente.
+
+## Instalación
+
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/Entystal.git
+   cd Entystal
+   ```
+2. Instala sbt (si aún no lo tienes):
+   ```bash
+   bash scripts/install_sbt.sh
+   ```
+3. Compila y formatea el proyecto:
+   ```bash
+   sbt scalafmtAll compile
+   ```
+4. Ejecuta las pruebas unitarias:
+   ```bash
+   sbt test
+   ```
+5. (Opcional) Genera un JAR ensamblado para distribuir la GUI:
+   ```bash
+   sbt assembly
+   # El archivo quedará en target/scala-2.13/*-assembly.jar
+   ```
+
+## Uso de la aplicación
+
+### Por CLI
 
 ```bash
 sbt "core/run --mode asset --assetId id-101 --assetDesc 'Datos relevantes CLI'"
 ```
-
-En Windows, si un valor contiene espacios usa comillas dobles:
-
+En Windows usa comillas dobles cuando el valor tenga espacios:
 ```cmd
 sbt "core/run --mode asset --assetId id-101 --assetDesc \"Datos relevantes CLI\""
 ```
-
-La salida debería mostrar algo similar a:
-
-```
+La salida será similar a:
+```text
 Registrado activo: DataAsset(id-101, Datos relevantes CLI, 172xxxxxxx, 1)
 ```
 
-Antes, configura PostgreSQL con `core/sql/entystal_schema.sql` si vas a usar `SqlLedger`.
+### Por GUI
+
+Lanza la interfaz gráfica directamente con sbt:
+```bash
+sbt "core/runMain entystal.gui.GuiApp"
+```
+Si generaste el JAR ensamblado también puedes ejecutarlo con:
+```bash
+java -jar target/scala-2.13/entystal-core-assembly-*.jar
+```
+
+Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_schema.sql` en tu instancia de PostgreSQL.
 
 ## Pruebas de integración
 
-Las pruebas que ejercitan `SqlLedger` leen las credenciales de la base de datos
-desde las variables de entorno `PGUSER` y `PGPASSWORD`. Configúralas antes de
-ejecutar:
-
+Las pruebas que usan `SqlLedger` necesitan las variables `PGUSER` y `PGPASSWORD` configuradas. Se ejecutan automáticamente con:
 ```bash
 sbt test
 ```
-
-Estas pruebas se ejecutan solo si PostgreSQL está activo y accesible en
-`localhost:5432`. Si no es así se marcan como **ignoradas** automáticamente.
+Si la base de datos no está disponible en `localhost:5432` las pruebas se marcan como **ignoradas**.
 
 ## Contribución
 
