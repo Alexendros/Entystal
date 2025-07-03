@@ -2,6 +2,11 @@ ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / organization := "io.entystal"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
+val javafxVersion = "21.0.1"
+
+import sbtassembly.AssemblyPlugin.autoImport._
+import sbtassembly.MergeStrategy
+
 lazy val root = (project in file("."))
   .aggregate(core)
   .settings(
@@ -22,9 +27,16 @@ lazy val core = (project in file("core"))
       "dev.zio" %% "zio-test"     % "2.0.15" % Test,
       "dev.zio" %% "zio-test-sbt" % "2.0.15" % Test,
       "com.github.scopt" %% "scopt" % "4.1.0",
+      "org.openjfx" % "javafx-base" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-controls" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-fxml" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-graphics" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-media" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-swing" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-web" % javafxVersion classifier "linux",
       "org.scalafx" %% "scalafx" % "21.0.0-R32",
       "org.scalafx" %% "scalafxml-core-sfx8" % "0.5"
-    ),
+      ),
     scalacOptions ++= Seq(
       "-deprecation",
       "-feature",
@@ -32,6 +44,11 @@ lazy val core = (project in file("core"))
       "-encoding", "utf8",
       "-Xfatal-warnings"
     ),
-    Test / fork := true,
-    Test / parallelExecution := false
-  )
+      Test / fork := true,
+      Test / parallelExecution := false,
+      assembly / assemblyMergeStrategy := {
+        case PathList("META-INF", _ @ _*) => MergeStrategy.discard
+        case "module-info.class"         => MergeStrategy.discard
+        case _                            => MergeStrategy.first
+      }
+    )
