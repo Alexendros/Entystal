@@ -24,6 +24,12 @@ Ejemplo de registro por CLI:
 sbt "core/run --mode asset --assetId id-101 --assetDesc 'Datos relevantes CLI'"
 ```
 
+En Windows, si un valor contiene espacios usa comillas dobles:
+
+```cmd
+sbt "core/run --mode asset --assetId id-101 --assetDesc \"Datos relevantes CLI\""
+```
+
 La salida debería mostrar algo similar a:
 
 ```

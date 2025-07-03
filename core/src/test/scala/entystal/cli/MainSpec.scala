@@ -32,4 +32,10 @@ class MainSpec extends AnyFlatSpec with Matchers {
     investment.id shouldBe "i1"
     investment.quantity shouldBe BigDecimal(1)
   }
+
+  it should "aceptar descripciones con espacios" in {
+    val cfg =
+      parse(Array("--mode", "asset", "--assetId", "a2", "--assetDesc", "descripcion con espacios"))
+    cfg.assetDesc shouldBe Some("descripcion con espacios")
+  }
 }
