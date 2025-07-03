@@ -7,16 +7,16 @@ import zio._
 import scopt.OParser
 
 case class Config(
-  assetId: Option[String] = None,
-  assetDesc: Option[String] = None,
-  liabilityDesc: Option[String] = None,
-  investmentQty: Option[BigDecimal] = None,
-  mode: String = "asset"
+    assetId: Option[String] = None,
+    assetDesc: Option[String] = None,
+    liabilityDesc: Option[String] = None,
+    investmentQty: Option[BigDecimal] = None,
+    mode: String = "asset"
 )
 
 object Main extends ZIOAppDefault {
   val builder = OParser.builder[Config]
-  val parser = {
+  val parser  = {
     import builder._
     OParser.sequence(
       programName("entystal-cli"),
@@ -30,33 +30,35 @@ object Main extends ZIOAppDefault {
   }
 
   def run = {
-    val argsArray = Option(System.getenv("ARGS")).fold(Array.empty[String])(_.split(" "))
+    val argsArray = Option(java.lang.System.getenv("ARGS")).fold(Array.empty[String])(_.split(" "))
     OParser.parse(parser, argsArray, Config()) match {
       case Some(cfg) if cfg.mode == "asset" && cfg.assetId.nonEmpty && cfg.assetDesc.nonEmpty =>
         for {
           ledger <- EntystalModule.layer.build.map(_.get)
-          ts     = System.currentTimeMillis
-          asset  = DataAsset(cfg.assetId.get, cfg.assetDesc.get, ts, BigDecimal(1))
+          ts      = java.lang.System.currentTimeMillis
+          asset   = DataAsset(cfg.assetId.get, cfg.assetDesc.get, ts, BigDecimal(1))
           _      <- ledger.recordAsset(asset)
           _      <- Console.printLine(s"Registrado activo: $asset")
         } yield ()
-      case Some(cfg) if cfg.mode == "liability" && cfg.assetId.nonEmpty && cfg.liabilityDesc.nonEmpty =>
+      case Some(cfg)
+          if cfg.mode == "liability" && cfg.assetId.nonEmpty && cfg.liabilityDesc.nonEmpty =>
         for {
           ledger   <- EntystalModule.layer.build.map(_.get)
-          ts       = System.currentTimeMillis
+          ts        = java.lang.System.currentTimeMillis
           liability = EthicalLiability(cfg.assetId.get, cfg.liabilityDesc.get, ts, BigDecimal(1))
           _        <- ledger.recordLiability(liability)
           _        <- Console.printLine(s"Registrado pasivo: $liability")
         } yield ()
-      case Some(cfg) if cfg.mode == "investment" && cfg.assetId.nonEmpty && cfg.investmentQty.nonEmpty =>
+      case Some(cfg)
+          if cfg.mode == "investment" && cfg.assetId.nonEmpty && cfg.investmentQty.nonEmpty =>
         for {
-          ledger     <- EntystalModule.layer.build.map(_.get)
-          ts         = System.currentTimeMillis
+          ledger    <- EntystalModule.layer.build.map(_.get)
+          ts         = java.lang.System.currentTimeMillis
           investment = BasicInvestment(cfg.assetId.get, cfg.investmentQty.get, ts)
-          _          <- ledger.recordInvestment(investment)
-          _          <- Console.printLine(s"Registrada inversión: $investment")
+          _         <- ledger.recordInvestment(investment)
+          _         <- Console.printLine(s"Registrada inversión: $investment")
         } yield ()
-      case _ =>
+      case _                                                                                  =>
         Console.printLine("Par\u00e1metros insuficientes o incorrectos.")
     }
   }

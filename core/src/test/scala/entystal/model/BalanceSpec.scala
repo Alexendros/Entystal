@@ -4,14 +4,14 @@ import entystal.model._
 
 class BalanceSpec extends AnyFlatSpec with Matchers {
   "netWorth" should "calcularse correctamente" in {
-    val assets = List(
+    val assets      = List(
       DataAsset("a1", "d1", 1L, BigDecimal(10)),
       DataAsset("a2", "d2", 2L, BigDecimal(5))
     )
     val liabilities = List(
       BasicLiability("l1", BigDecimal(4), 3L)
     )
-    val balance = Balance(assets, liabilities)
+    val balance     = Balance(assets, liabilities)
     balance.netWorth shouldBe BigDecimal(11)
   }
 
