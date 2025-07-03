@@ -16,6 +16,7 @@ listo en tu sistema.
 ```bash
 sbt scalafmtAll   # Formateo de código
 sbt test          # Ejecutar pruebas
+sbt "core/runMain entystal.gui.GuiApp"  # Lanzar la interfaz gráfica
 ```
 
 Ejemplo de registro por CLI:

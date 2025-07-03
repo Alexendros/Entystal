@@ -21,7 +21,9 @@ lazy val core = (project in file("core"))
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
       "dev.zio" %% "zio-test"     % "2.0.15" % Test,
       "dev.zio" %% "zio-test-sbt" % "2.0.15" % Test,
-      "com.github.scopt" %% "scopt" % "4.1.0"
+      "com.github.scopt" %% "scopt" % "4.1.0",
+      "org.scalafx" %% "scalafx" % "21.0.0-R32",
+      "org.scalafx" %% "scalafxml-core-sfx8" % "0.5"
     ),
     scalacOptions ++= Seq(
       "-deprecation",
