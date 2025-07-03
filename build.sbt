@@ -17,6 +17,7 @@ lazy val core = (project in file("core"))
       "dev.zio" %% "zio-json"     % "0.6.2",
       "org.tpolecat" %% "doobie-core"  % "1.0.0-RC4",
       "org.tpolecat" %% "doobie-postgres" % "1.0.0-RC4",
+      "dev.zio" %% "zio-interop-cats" % "23.1.0.0",
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
       "dev.zio" %% "zio-test"     % "2.0.15" % Test,
       "dev.zio" %% "zio-test-sbt" % "2.0.15" % Test,
