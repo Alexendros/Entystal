@@ -22,7 +22,7 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/Entystal.git
+   git clone https://github.com/Alexendros/Entystal.git
    cd Entystal
    ```
 2. Instala sbt (si aún no lo tienes):
