@@ -12,6 +12,8 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 - Interfaz de línea de comandos (CLI) para registrar eventos contables.
 - Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
 - Generación de JAR ejecutable mediante `sbt-assembly`.
+- Exportación de eventos a JSON.
+- Panel de métricas tipo dashboard.
 
 ## Requisitos
 
@@ -79,6 +81,12 @@ Si generaste el JAR ensamblado también puedes ejecutarlo con:
 java -jar target/scala-2.13/entystal-core-assembly-*.jar
 ```
 
+#### Nuevas funcionalidades de la GUI
+
+- **Cambio de idioma**: abre el menú `View` y selecciona `Language` para alternar entre español e inglés sin reiniciar.
+- **Exportación JSON**: desde `Archivo > Exportar...` guarda el historial en la carpeta `exports/`.
+- **Dashboard**: ejecuta `sbt "core/runMain entystal.gui.DashboardApp"` o usa el botón *Dashboard* en la ventana principal.
+
 Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_schema.sql` en tu instancia de PostgreSQL.
 
 ## Pruebas de integración
@@ -92,3 +100,11 @@ Si la base de datos no está disponible en `localhost:5432` las pruebas se marca
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Desarrollo
+
+- Ejecuta `sbt scalafmtAll` para aplicar el formato de código.
+- Ejecuta `sbt test` para correr todas las pruebas.
+- El flujo de CI en `.github/workflows/ci.yml` verifica formato y tests en cada PR.
+- Necesitas Java 17, PostgreSQL 15 y sbt 1.9.9 instalados.
+\n
