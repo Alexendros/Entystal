@@ -7,6 +7,7 @@ import entystal.ledger.Ledger
 import entystal.service.RegistroService
 import entystal.viewmodel.{RegistroValidator, RegistroViewModel}
 import entystal.view.MainView
+import entystal.i18n.I18n
 import zio.Runtime
 
 /** Lanzador principal de la interfaz gráfica */
@@ -24,8 +25,9 @@ object GuiApp extends JFXApp3 {
     val view                           = new MainView(vm)
 
     stage = new JFXApp3.PrimaryStage {
-      title = "Entystal GUI"
+      title = I18n("app.title")
       scene = view.scene
     }
+    I18n.register(() => stage.title = I18n("app.title"))
   }
 }

@@ -6,6 +6,7 @@ import entystal.model._
 import entystal.ledger.Ledger
 import entystal.util.{CsvExporter, PdfExporter}
 import zio.Runtime
+import entystal.i18n.I18n
 
 /** ViewModel para el formulario de registro */
 class RegistroViewModel(service: RegistroService, validator: RegistroValidator) {
@@ -22,10 +23,15 @@ class RegistroViewModel(service: RegistroService, validator: RegistroValidator) 
   )
 
   /** Devuelve mensaje de error o confirma el registro */
-  def registrar(): String =
-    validator.validate(RegistroData(tipo.value, identificador.value, descripcion.value)) match {
-      case Left(err) => err
-      case Right(_)  => service.registrar(RegistroData(tipo.value, identificador.value, descripcion.value))
+  def registrar(): String = {
+    if (!puedeRegistrar.value) {
+      if (identificador.value.trim.isEmpty)
+        return I18n("error.idRequerido")
+      if (descripcion.value.trim.isEmpty)
+        return if (tipo.value == "inversion") I18n("error.cantidadRequerida")
+        else I18n("error.descripcionRequerida")
+      if (tipo.value == "inversion" && !descripcion.value.matches("^\\d+(\\.\\d+)?$"))
+        return I18n("error.cantidadNumerica")
     }
 
     val ts = System.currentTimeMillis
@@ -47,7 +53,7 @@ class RegistroViewModel(service: RegistroService, validator: RegistroValidator) 
           runtime.unsafe.run(ledger.recordInvestment(investment)).getOrThrow()
         }
     }
-    "Registro completado"
+    I18n("mensaje.registroCompletado")
   }
 
   /** Exporta el historial a CSV y devuelve mensaje de confirmación */
