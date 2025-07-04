@@ -1,15 +1,17 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField}
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
+import scalafx.scene.layout.{GridPane, HBox, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
+import entystal.ledger.Ledger
+import zio.Runtime
 
 /** Vista principal de registro */
-class MainView(vm: RegistroViewModel) {
+class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
   private val labelDescripcion = new Label("Descripción")
 
   private val tipoChoice =
@@ -38,7 +40,7 @@ class MainView(vm: RegistroViewModel) {
     labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
   }
 
-  val rootPane = new VBox(10) {
+  private val registroPane = new VBox(10) {
     padding = Insets(20)
     children = Seq(
       new GridPane {
@@ -56,7 +58,18 @@ class MainView(vm: RegistroViewModel) {
     )
   }
 
-  val scene = new Scene(400, 200) {
-    root = rootPane
+  private val busquedaView  = new BusquedaView(ledger)
+  private val dashboardView = new BusquedaView(ledger)
+
+  private val tabPane = new TabPane {
+    tabs = Seq(
+      new Tab { text = "Registro"; content = registroPane; closable = false        },
+      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
+      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
+    )
+  }
+
+  val scene = new Scene(600, 400) {
+    root = tabPane
   }
 }
