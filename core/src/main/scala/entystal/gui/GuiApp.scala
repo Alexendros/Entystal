@@ -5,9 +5,8 @@ import scalafx.stage.Stage
 import entystal.{EntystalModule}
 import entystal.ledger.Ledger
 import entystal.viewmodel.RegistroViewModel
+import entystal.view.{MainView, DashboardView}
 import entystal.service.RegistroService
-import entystal.view.MainView
-import entystal.service.DialogNotifier
 import zio.Runtime
 
 /** Lanzador principal de la interfaz gráfica */
@@ -19,8 +18,10 @@ object GuiApp extends JFXApp3 {
         .run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get)))
         .getOrThrow()
     }
-    val vm                             = new RegistroViewModel(ledger)
-    val view                           = new MainView(vm, ledger)
+    val vm            = new RegistroViewModel(ledger)
+    val regService    = new RegistroService(ledger)
+    val dashView      = new DashboardView(regService)
+    val view          = new MainView(vm, dashView)
 
     stage = new JFXApp3.PrimaryStage {
       title = I18n("app.title")
