@@ -15,7 +15,7 @@ class MainView(vm: RegistroViewModel) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
-  private val langChoice =
+  private val langChoice       =
     new ChoiceBox[String](ObservableBuffer("es", "en")) {
       value = I18n.locale.value.getLanguage
     }
@@ -90,7 +90,7 @@ class MainView(vm: RegistroViewModel) {
       },
       langChoice,
       registrarBtn,
-      new VBox(5) {
+      new VBox(5)  {
         children = Seq(exportCsvBtn, exportPdfBtn)
       },
       mensajeLabel

@@ -12,19 +12,19 @@ object CsvExporter {
       try {
         writer.println("type,id,description,timestamp")
         entries.foreach {
-          case AssetEntry(asset) =>
+          case AssetEntry(asset)           =>
             val desc = asset match {
               case DataAsset(_, data, _, _)        => data
               case CodeAsset(_, repo, _, _)        => repo
               case ReputationAsset(_, score, _, _) => s"score: $score"
             }
             writer.println(s"asset,${asset.id},$desc,${asset.timestamp}")
-          case LiabilityEntry(liability) =>
+          case LiabilityEntry(liability)   =>
             val desc = liability match {
-              case BasicLiability(_, _, _)          => "basic"
-              case EthicalLiability(_, d, _, _)     => d
-              case StrategicLiability(_, r, _, _)   => r
-              case LegalLiability(_, l, _, _)       => l
+              case BasicLiability(_, _, _)        => "basic"
+              case EthicalLiability(_, d, _, _)   => d
+              case StrategicLiability(_, r, _, _) => r
+              case LegalLiability(_, l, _, _)     => l
             }
             writer.println(s"liability,${liability.id},$desc,${liability.timestamp}")
           case InvestmentEntry(investment) =>
