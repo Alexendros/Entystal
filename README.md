@@ -89,11 +89,19 @@ Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_sche
 
 ## Pruebas de integración
 
-Las pruebas que usan `SqlLedger` necesitan las variables `PGUSER` y `PGPASSWORD` configuradas. Se ejecutan automáticamente con:
+Las pruebas que usan `SqlLedger` necesitan las variables de entorno `PGUSER` (usuario) y
+`PGPASSWORD` (contrase\u00f1a) para conectar con PostgreSQL. Define dichos valores antes de
+ejecutar las pruebas:
+```bash
+export PGUSER=tu_usuario
+export PGPASSWORD=tu_contrase\u00f1a
+```
+Despu\u00e9s lanza las pruebas con:
 ```bash
 sbt test
 ```
-Si la base de datos no está disponible en `localhost:5432` las pruebas se marcan como **ignoradas**.
+Si la base de datos no est\u00e1 disponible en `localhost:5432` las pruebas se marcan como
+**ignoradas**.
 
 ## Contribución
 
