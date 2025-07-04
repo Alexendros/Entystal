@@ -15,7 +15,7 @@ import zio.Runtime
 object GuiApp extends JFXApp3 {
   override def start(): Unit = {
     implicit val runtime: Runtime[Any] = Runtime.default
-    val ledger: Ledger                 = zio.Unsafe.unsafe { implicit u =>
+    val ledger: Ledger = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe
         .run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get)))
         .getOrThrow()

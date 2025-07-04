@@ -57,5 +57,8 @@ lazy val core = (project in file("core"))
         case PathList("META-INF", _ @ _*) => MergeStrategy.discard
         case "module-info.class"         => MergeStrategy.discard
         case _                            => MergeStrategy.first
-      }
+      },
+      coverageEnabled := true,
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true
     )

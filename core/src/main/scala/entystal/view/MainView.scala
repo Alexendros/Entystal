@@ -25,18 +25,16 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
-      accessibleText = "Tipo de registro"
-      focusTraversable = true
     }
 
   private val idField = new TextField() {
     text <==> vm.identificador
-    promptText = I18n("prompt.id")
+    promptText = "ID"
   }
 
   private val descField = new TextField() {
     text <==> vm.descripcion
-    promptText = I18n("prompt.desc")
+    promptText = "Descripción o cantidad"
   }
 
   private val darkModeSwitch = new CheckBox("Tema oscuro") {
@@ -75,9 +73,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
       new GridPane {
         hgap = 10
         vgap = 10
-        add(labelTipo, 0, 0)
+        add(new Label("Tipo"), 0, 0)
         add(tipoChoice, 1, 0)
-        add(labelId, 0, 1)
+        add(new Label("ID"), 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
@@ -88,10 +86,7 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     )
   }
 
-  private val busquedaView  = new BusquedaView(ledger)
-  private val dashboardView = new BusquedaView(ledger)
-
-  private val tabPane = new TabPane {
+  val rootPane = new TabPane {
     tabs = Seq(
       new Tab { text = "Registro"; content = registroPane; closable = false },
       new Tab { text = "B\u00fasqueda"; content = busquedaView.root; closable = false },
