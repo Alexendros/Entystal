@@ -45,6 +45,14 @@ class MainView(vm: RegistroViewModel) {
     focusTraversable = true
   }
 
+  private val exportCsvBtn = new Button("Exportar CSV") {
+    onAction = _ => mensajeLabel.text = vm.exportCsv()
+  }
+
+  private val exportPdfBtn = new Button("Exportar PDF") {
+    onAction = _ => mensajeLabel.text = vm.exportPdf()
+  }
+
   tipoChoice.value.onChange { (_, _, nv) =>
     labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
   }
@@ -63,6 +71,9 @@ class MainView(vm: RegistroViewModel) {
         add(descField, 1, 2)
       },
       registrarBtn,
+      new VBox(5) {
+        children = Seq(exportCsvBtn, exportPdfBtn)
+      },
       mensajeLabel
     )
   }
