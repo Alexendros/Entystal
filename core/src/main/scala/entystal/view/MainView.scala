@@ -73,6 +73,17 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     )
   }
 
+  private val busquedaView  = new BusquedaView(ledger)
+  private val dashboardView = new BusquedaView(ledger)
+
+  private val tabPane = new TabPane {
+    tabs = Seq(
+      new Tab { text = "Registro"; content = registroPane; closable = false        },
+      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
+      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
+    )
+  }
+
   val scene = new Scene(600, 400) {
     root = tabPane
   }
