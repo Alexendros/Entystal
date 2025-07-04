@@ -4,7 +4,6 @@ import scalafx.beans.property.StringProperty
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
 import entystal.service.{RegistroService, Notifier}
-import entystal.viewmodel.RegistroValidator
 import zio.Runtime
 
 /** ViewModel para el formulario de registro */
