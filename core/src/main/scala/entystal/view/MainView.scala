@@ -10,28 +10,34 @@ import entystal.viewmodel.RegistroViewModel
 
 /** Vista principal de registro */
 class MainView(vm: RegistroViewModel) {
-  private val labelDescripcion = new Label("Descripción")
+  val labelDescripcion = new Label("Descripción")
 
-  private val tipoChoice =
+  val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
+      id = "tipoChoice"
     }
 
-  private val idField = new TextField() {
+  val idField = new TextField() {
     text <==> vm.identificador
     promptText = "ID"
+    id = "idField"
   }
 
-  private val descField = new TextField() {
+  val descField = new TextField() {
     text <==> vm.descripcion
     promptText = "Descripción o cantidad"
+    id = "descField"
   }
 
-  private val mensajeLabel = new Label()
+  val mensajeLabel = new Label() {
+    id = "mensajeLabel"
+  }
 
-  private val registrarBtn = new Button("Registrar") {
+  val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
+    id = "registrarBtn"
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>

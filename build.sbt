@@ -35,7 +35,12 @@ lazy val core = (project in file("core"))
       "org.openjfx" % "javafx-swing" % javafxVersion classifier "linux",
       "org.openjfx" % "javafx-web" % javafxVersion classifier "linux",
       "org.scalafx" %% "scalafx" % "21.0.0-R32",
-      "org.scalafx" %% "scalafxml-core-sfx8" % "0.5"
+      "org.scalafx" %% "scalafxml-core-sfx8" % "0.5",
+      "org.testfx" % "testfx-core" % "4.0.15-alpha" % Test,
+      "org.testfx" % "testfx-junit" % "4.0.15-alpha" % Test,
+      "org.testfx" % "openjfx-monocle" % "21.0.2" % Test,
+      "junit" % "junit" % "4.13.2" % Test,
+      "com.novocode" % "junit-interface" % "0.11" % Test
       ),
     scalacOptions ++= Seq(
       "-deprecation",
@@ -46,6 +51,15 @@ lazy val core = (project in file("core"))
     ),
       Test / fork := true,
       Test / parallelExecution := false,
+      Test / javaOptions ++= Seq(
+        "-Dtestfx.robot=glass",
+        "-Dtestfx.headless=true",
+        "-Dglass.platform=Monocle",
+        "-Dmonocle.platform=Headless",
+        "-Dprism.order=sw",
+        "-Dprism.text=t2k",
+        "-Djava.awt.headless=true"
+      ),
       assembly / assemblyMergeStrategy := {
         case PathList("META-INF", _ @ _*) => MergeStrategy.discard
         case "module-info.class"         => MergeStrategy.discard
