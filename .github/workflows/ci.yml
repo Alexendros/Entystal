@@ -46,4 +46,4 @@ jobs:
           PGPASSWORD: password
         run: |
           sbt scalafmtCheckAll
-          sbt test
+          sbt -Dtestfx.headless=true test
