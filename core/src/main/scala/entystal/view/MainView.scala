@@ -27,11 +27,9 @@ class MainView(vm: RegistroViewModel) {
     promptText = "Descripción o cantidad"
   }
 
-  private val mensajeLabel = new Label()
-
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
-    onAction = _ => mensajeLabel.text = vm.registrar()
+    onAction = _ => vm.registrar()
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
@@ -51,8 +49,7 @@ class MainView(vm: RegistroViewModel) {
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
       },
-      registrarBtn,
-      mensajeLabel
+      registrarBtn
     )
   }
 
