@@ -1,7 +1,7 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField}
+import scalafx.scene.control.{Button, ChoiceBox, Label, TextField, TabPane, Tab}
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
@@ -9,7 +9,7 @@ import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
 
 /** Vista principal de registro */
-class MainView(vm: RegistroViewModel) {
+class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
   private val labelDescripcion = new Label("Descripción")
 
   private val tipoChoice =
@@ -31,14 +31,17 @@ class MainView(vm: RegistroViewModel) {
 
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
-    onAction = _ => mensajeLabel.text = vm.registrar()
+    onAction = _ => {
+      mensajeLabel.text = vm.registrar()
+      dashboard.refresh()
+    }
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
     labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
   }
 
-  val rootPane = new VBox(10) {
+  private val registroPane = new VBox(10) {
     padding = Insets(20)
     children = Seq(
       new GridPane {
@@ -56,7 +59,22 @@ class MainView(vm: RegistroViewModel) {
     )
   }
 
-  val scene = new Scene(400, 200) {
+  val rootPane = new TabPane {
+    tabs = Seq(
+      new Tab {
+        text = "Registro"
+        content = registroPane
+        closable = false
+      },
+      new Tab {
+        text = "Dashboard"
+        content = dashboard.rootPane
+        closable = false
+      }
+    )
+  }
+
+  val scene = new Scene(400, 300) {
     root = rootPane
   }
 }

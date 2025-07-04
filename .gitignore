@@ -1,0 +1,6 @@
+# Archivos de compilación y directorios de sbt
+**/target/
+/project/project/
+/.bsp/
+/.idea/
+.DS_Store
