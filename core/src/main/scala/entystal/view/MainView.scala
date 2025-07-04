@@ -1,18 +1,26 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
-import scalafx.scene.layout.{GridPane, HBox, VBox}
+import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField, CheckBox}
+import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
+import entystal.gui.ThemeManager
+import entystal.i18n.I18n
 import entystal.ledger.Ledger
+import java.util.Locale
 import zio.Runtime
 
-/** Vista principal de registro */
+/** Vista principal con pesta\u00f1as y soporte de temas e idiomas */
 class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
-  private val labelDescripcion = new Label("Descripción")
+  private val labelTipo        = new Label()
+  private val labelId          = new Label()
+  private val labelDescripcion = new Label()
+
+  private val langChoice =
+    new ChoiceBox[String](ObservableBuffer("es", "en")) { value = I18n.locale.value.getLanguage }
 
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
@@ -31,19 +39,35 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     promptText = I18n("prompt.desc")
   }
 
-  private val registrarBtn = new Button("Registrar") {
+  private val darkModeSwitch = new CheckBox("Tema oscuro") {
+    selected = ThemeManager.loadTheme() == ThemeManager.Dark
+  }
+
+  private val registrarBtn = new Button() {
+    text <== I18n.binding("button.registrar")
     disable <== vm.puedeRegistrar.not()
     onAction = _ => vm.registrar()
   }
 
-  tipoChoice.value.onChange { (_, _, nv) =>
-    updateTexts()
-  }
-
+  tipoChoice.value.onChange { (_, _, _) => updateTexts() }
+  langChoice.value.onChange { (_, _, nv) => if (nv != null) I18n.setLocale(Locale.forLanguageTag(nv)) }
   darkModeSwitch.selected.onChange { (_, _, nv) =>
     val theme = if (nv) ThemeManager.Dark else ThemeManager.Light
     ThemeManager.applyTheme(scene, theme)
   }
+
+  private def updateTexts(): Unit = {
+    labelTipo.text = I18n("label.tipo")
+    labelId.text = I18n("label.id")
+    labelDescripcion.text =
+      if (tipoChoice.value == "inversion") I18n("label.cantidad")
+      else I18n("label.descripcion")
+    idField.promptText = I18n("prompt.id")
+    descField.promptText = I18n("prompt.desc")
+  }
+
+  I18n.register(() => updateTexts())
+  updateTexts()
 
   private val registroPane = new VBox(10) {
     padding = Insets(20)
@@ -58,7 +82,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
       },
-      registrarBtn
+      langChoice,
+      registrarBtn,
+      darkModeSwitch
     )
   }
 
@@ -67,24 +93,11 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
 
   private val tabPane = new TabPane {
     tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false        },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
+      new Tab { text = "Registro"; content = registroPane; closable = false },
+      new Tab { text = "B\u00fasqueda"; content = busquedaView.root; closable = false },
       new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
     )
   }
 
-  private val busquedaView  = new BusquedaView(ledger)
-  private val dashboardView = new BusquedaView(ledger)
-
-  private val tabPane = new TabPane {
-    tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false        },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
-      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
-    )
-  }
-
-  val scene = new Scene(600, 400) {
-    root = tabPane
-  }
+  val scene = new Scene(600, 400) { root = tabPane }
 }
