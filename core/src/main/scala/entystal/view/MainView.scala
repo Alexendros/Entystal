@@ -23,6 +23,8 @@ class MainView(vm: RegistroViewModel) {
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
+      accessibleText = "Tipo de registro"
+      focusTraversable = true
     }
 
   private val idField = new TextField() {
@@ -40,6 +42,15 @@ class MainView(vm: RegistroViewModel) {
   private val registrarBtn = new Button() {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
+    focusTraversable = true
+  }
+
+  private val exportCsvBtn = new Button("Exportar CSV") {
+    onAction = _ => mensajeLabel.text = vm.exportCsv()
+  }
+
+  private val exportPdfBtn = new Button("Exportar PDF") {
+    onAction = _ => mensajeLabel.text = vm.exportPdf()
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
@@ -79,6 +90,9 @@ class MainView(vm: RegistroViewModel) {
       },
       langChoice,
       registrarBtn,
+      new VBox(5) {
+        children = Seq(exportCsvBtn, exportPdfBtn)
+      },
       mensajeLabel
     )
   }
