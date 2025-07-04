@@ -1,23 +1,18 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField, CheckBox}
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
+import scalafx.scene.layout.{GridPane, HBox, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
-import entystal.gui.ThemeManager
+import entystal.ledger.Ledger
+import zio.Runtime
 
 /** Vista principal de registro */
-class MainView(vm: RegistroViewModel) {
-  private val labelTipo        = new Label()
-  private val labelId          = new Label()
-  private val labelDescripcion = new Label()
-  private val langChoice =
-    new ChoiceBox[String](ObservableBuffer("es", "en")) {
-      value = I18n.locale.value.getLanguage
-    }
+class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
+  private val labelDescripcion = new Label("Descripción")
 
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
@@ -50,7 +45,7 @@ class MainView(vm: RegistroViewModel) {
     ThemeManager.applyTheme(scene, theme)
   }
 
-  val rootPane = new VBox(10) {
+  private val registroPane = new VBox(10) {
     padding = Insets(20)
     children = Seq(
       new GridPane {
@@ -67,9 +62,18 @@ class MainView(vm: RegistroViewModel) {
     )
   }
 
-  val scene = new Scene(400, 200) {
-    root = rootPane
-    // Cargar tema guardado al crear la vista
-    stylesheets += ThemeManager.loadTheme().css
+  private val busquedaView  = new BusquedaView(ledger)
+  private val dashboardView = new BusquedaView(ledger)
+
+  private val tabPane = new TabPane {
+    tabs = Seq(
+      new Tab { text = "Registro"; content = registroPane; closable = false        },
+      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
+      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
+    )
+  }
+
+  val scene = new Scene(600, 400) {
+    root = tabPane
   }
 }

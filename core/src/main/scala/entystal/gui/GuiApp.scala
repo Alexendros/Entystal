@@ -19,9 +19,8 @@ object GuiApp extends JFXApp3 {
         .run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get)))
         .getOrThrow()
     }
-    val service                        = new RegistroService(ledger)
-    val vm                             = new RegistroViewModel(service)
-    val view                           = new MainView(vm)
+    val vm                             = new RegistroViewModel(ledger)
+    val view                           = new MainView(vm, ledger)
 
     stage = new JFXApp3.PrimaryStage {
       title = I18n("app.title")
