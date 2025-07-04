@@ -24,8 +24,10 @@ object GuiApp extends JFXApp3 {
     val view          = new MainView(vm, dashView)
 
     stage = new JFXApp3.PrimaryStage {
-      title = "Entystal GUI"
+      title = I18n("app.title")
       scene = view.scene
     }
+    // Aplicar tema guardado al iniciar
+    ThemeManager.applyTheme(view.scene, ThemeManager.loadTheme())
   }
 }

@@ -35,7 +35,8 @@ lazy val core = (project in file("core"))
       "org.openjfx" % "javafx-swing" % javafxVersion classifier "linux",
       "org.openjfx" % "javafx-web" % javafxVersion classifier "linux",
       "org.scalafx" %% "scalafx" % "21.0.0-R32",
-      "org.scalafx" %% "scalafxml-core-sfx8" % "0.5"
+      "org.scalafx" %% "scalafxml-core-sfx8" % "0.5",
+      "org.apache.pdfbox" % "pdfbox" % "2.0.30"
       ),
     scalacOptions ++= Seq(
       "-deprecation",
@@ -50,5 +51,8 @@ lazy val core = (project in file("core"))
         case PathList("META-INF", _ @ _*) => MergeStrategy.discard
         case "module-info.class"         => MergeStrategy.discard
         case _                            => MergeStrategy.first
-      }
+      },
+      coverageEnabled := true,
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true
     )
