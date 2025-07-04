@@ -48,11 +48,20 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 ### Por CLI
 
 ```bash
-sbt "core/run --mode asset --assetId id-101 --assetDesc 'Datos relevantes CLI'"
+sbt 'core/run --mode asset --assetId id-101 --assetDesc "Datos relevantes CLI"'
 ```
-En Windows usa comillas dobles cuando el valor tenga espacios:
+En Windows (incluido PowerShell) funciona igual usando comillas simples para
+envolver todo el comando:
 ```cmd
-sbt "core/run --mode asset --assetId id-101 --assetDesc \"Datos relevantes CLI\""
+sbt 'core/run --mode asset --assetId id-101 --assetDesc "Datos relevantes CLI"'
+```
+Si prefieres evitar problemas de escape, puedes usar el script de ayuda:
+```bash
+./scripts/run-cli.sh asset id-101 "Datos relevantes CLI"
+```
+o en PowerShell:
+```powershell
+./scripts/run-cli.ps1 -Mode asset -AssetId id-101 -AssetDesc "Datos relevantes CLI"
 ```
 La salida será similar a:
 ```text
