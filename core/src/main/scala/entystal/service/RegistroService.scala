@@ -1,6 +1,6 @@
 package entystal.service
-import entystal.ledger.Ledger
-import entystal.model.{Asset, Investment, Liability}
+
+import entystal.ledger.{Ledger, AssetEntry, LiabilityEntry, InvestmentEntry}
 import zio.UIO
 
 /** Servicio que abstrae el registro de eventos delegando en el Ledger */
@@ -14,4 +14,3 @@ class RegistroService(private val ledger: Ledger) {
   def registrarInversion(investment: Investment): UIO[Unit] =
     ledger.recordInvestment(investment)
 }
-

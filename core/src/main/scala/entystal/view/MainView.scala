@@ -11,7 +11,7 @@ import entystal.ledger.Ledger
 import zio.Runtime
 
 /** Vista principal de registro */
-class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
+class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
   private val labelDescripcion = new Label("Descripción")
 
   private val tipoChoice =
@@ -31,7 +31,10 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
 
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
-    onAction = _ => vm.registrar()
+    onAction = _ => {
+      mensajeLabel.text = vm.registrar()
+      dashboard.refresh()
+    }
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
@@ -66,7 +69,22 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     )
   }
 
-  val scene = new Scene(600, 400) {
-    root = tabPane
+  val rootPane = new TabPane {
+    tabs = Seq(
+      new Tab {
+        text = "Registro"
+        content = registroPane
+        closable = false
+      },
+      new Tab {
+        text = "Dashboard"
+        content = dashboard.rootPane
+        closable = false
+      }
+    )
+  }
+
+  val scene = new Scene(400, 300) {
+    root = rootPane
   }
 }
