@@ -36,23 +36,9 @@ class MainView(vm: RegistroViewModel) {
     promptText = I18n("prompt.desc")
   }
 
-  private val mensajeLabel = new Label()
-
-  private val darkModeSwitch = new CheckBox("Tema oscuro")
-  darkModeSwitch.selected = ThemeManager.loadTheme() == ThemeManager.Dark
-
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
-    onAction = _ => mensajeLabel.text = vm.registrar()
-    focusTraversable = true
-  }
-
-  private val exportCsvBtn = new Button("Exportar CSV") {
-    onAction = _ => mensajeLabel.text = vm.exportCsv()
-  }
-
-  private val exportPdfBtn = new Button("Exportar PDF") {
-    onAction = _ => mensajeLabel.text = vm.exportPdf()
+    onAction = _ => vm.registrar()
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
@@ -77,10 +63,7 @@ class MainView(vm: RegistroViewModel) {
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
       },
-      langChoice,
-      registrarBtn,
-      darkModeSwitch,
-      mensajeLabel
+      registrarBtn
     )
   }
 

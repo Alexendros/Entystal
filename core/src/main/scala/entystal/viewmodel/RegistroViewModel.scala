@@ -4,12 +4,15 @@ import scalafx.beans.property.StringProperty
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
 import entystal.ledger.Ledger
-import entystal.util.{CsvExporter, PdfExporter}
+import entystal.service.Notifier
 import zio.Runtime
 import entystal.i18n.I18n
 
 /** ViewModel para el formulario de registro */
-class RegistroViewModel(service: RegistroService, validator: RegistroValidator) {
+class RegistroViewModel(ledger: Ledger, notifier: Notifier)(implicit
+    runtime: Runtime[Any]
+) {
+ 
   val tipo          = StringProperty("activo")
   val identificador = StringProperty("")
   val descripcion   = StringProperty("")
@@ -22,16 +25,23 @@ class RegistroViewModel(service: RegistroService, validator: RegistroValidator) 
     tipo,
   )
 
-  /** Devuelve mensaje de error o confirma el registro */
-  def registrar(): String = {
+  /** Ejecuta el registro mostrando el resultado mediante el notifier */
+  def registrar(): Unit = {
     if (!puedeRegistrar.value) {
-      if (identificador.value.trim.isEmpty)
-        return I18n("error.idRequerido")
-      if (descripcion.value.trim.isEmpty)
-        return if (tipo.value == "inversion") I18n("error.cantidadRequerida")
-        else I18n("error.descripcionRequerida")
-      if (tipo.value == "inversion" && !descripcion.value.matches("^\\d+(\\.\\d+)?$"))
-        return I18n("error.cantidadNumerica")
+      if (identificador.value.trim.isEmpty) {
+        notifier.error("ID requerido")
+        return
+      }
+      if (descripcion.value.trim.isEmpty) {
+        notifier.error(
+          if (tipo.value == "inversion") "Cantidad requerida" else "Descripción requerida"
+        )
+        return
+      }
+      if (tipo.value == "inversion" && !descripcion.value.matches("^\\d+(\\.\\d+)?$")) {
+        notifier.error("La cantidad debe ser numérica")
+        return
+      }
     }
 
     val ts = System.currentTimeMillis
@@ -53,28 +63,6 @@ class RegistroViewModel(service: RegistroService, validator: RegistroValidator) 
           runtime.unsafe.run(ledger.recordInvestment(investment)).getOrThrow()
         }
     }
-    I18n("mensaje.registroCompletado")
-  }
-
-  /** Exporta el historial a CSV y devuelve mensaje de confirmación */
-  def exportCsv(path: String = "ledger.csv"): String = {
-    val entries = zio.Unsafe.unsafe { implicit u =>
-      runtime.unsafe.run(ledger.getHistory).getOrThrow()
-    }
-    zio.Unsafe.unsafe { implicit u =>
-      runtime.unsafe.run(CsvExporter.save(entries, path)).getOrThrow()
-    }
-    s"CSV exportado en $path"
-  }
-
-  /** Exporta el historial a PDF y devuelve mensaje de confirmación */
-  def exportPdf(path: String = "ledger.pdf"): String = {
-    val entries = zio.Unsafe.unsafe { implicit u =>
-      runtime.unsafe.run(ledger.getHistory).getOrThrow()
-    }
-    zio.Unsafe.unsafe { implicit u =>
-      runtime.unsafe.run(PdfExporter.save(entries, path)).getOrThrow()
-    }
-    s"PDF exportado en $path"
+    notifier.success("Registro completado")
   }
 }

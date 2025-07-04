@@ -7,7 +7,7 @@ import entystal.ledger.Ledger
 import entystal.service.RegistroService
 import entystal.viewmodel.{RegistroValidator, RegistroViewModel}
 import entystal.view.MainView
-import entystal.gui.ThemeManager
+import entystal.service.DialogNotifier
 import zio.Runtime
 
 /** Lanzador principal de la interfaz gráfica */
@@ -19,9 +19,7 @@ object GuiApp extends JFXApp3 {
         .run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get)))
         .getOrThrow()
     }
-    val service                        = new RegistroService(ledger)
-    val validator                      = new RegistroValidator
-    val vm                             = new RegistroViewModel(service, validator)
+    val vm                             = new RegistroViewModel(ledger, DialogNotifier)
     val view                           = new MainView(vm)
 
     stage = new JFXApp3.PrimaryStage {
