@@ -1,7 +1,7 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField, TabPane, Tab}
+import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
@@ -17,18 +17,16 @@ class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
-      accessibleText = "Tipo de registro"
-      focusTraversable = true
     }
 
   private val idField = new TextField() {
     text <==> vm.identificador
-    promptText = I18n("prompt.id")
+    promptText = "ID"
   }
 
   private val descField = new TextField() {
     text <==> vm.descripcion
-    promptText = I18n("prompt.desc")
+    promptText = "Descripción o cantidad"
   }
 
   private val registrarBtn = new Button("Registrar") {
@@ -40,12 +38,7 @@ class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
-    updateTexts()
-  }
-
-  darkModeSwitch.selected.onChange { (_, _, nv) =>
-    val theme = if (nv) ThemeManager.Dark else ThemeManager.Light
-    ThemeManager.applyTheme(scene, theme)
+    labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
   }
 
   private val registroPane = new VBox(10) {
@@ -54,14 +47,14 @@ class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
       new GridPane {
         hgap = 10
         vgap = 10
-        add(labelTipo, 0, 0)
+        add(new Label("Tipo"), 0, 0)
         add(tipoChoice, 1, 0)
-        add(labelId, 0, 1)
+        add(new Label("ID"), 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
       },
-      registrarBtn
+      registrarBtn,
     )
   }
 
@@ -70,19 +63,8 @@ class MainView(vm: RegistroViewModel, dashboard: DashboardView) {
 
   private val tabPane = new TabPane {
     tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false        },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
-      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
-    )
-  }
-
-  private val busquedaView  = new BusquedaView(ledger)
-  private val dashboardView = new BusquedaView(ledger)
-
-  private val tabPane = new TabPane {
-    tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false        },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
+      new Tab { text = "Registro"; content = registroPane; closable = false },
+      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false },
       new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
     )
   }
