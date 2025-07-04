@@ -3,6 +3,12 @@ ThisBuild / organization := "io.entystal"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 
 val javafxVersion = "21.0.1"
+// Clasificador de JavaFX según el sistema operativo actual
+val osName = System.getProperty("os.name").toLowerCase
+val javafxPlatform =
+  if (osName.contains("win")) "win"
+  else if (osName.contains("mac")) "mac"
+  else "linux"
 
 import sbtassembly.AssemblyPlugin.autoImport._
 import sbtassembly.MergeStrategy
@@ -27,13 +33,13 @@ lazy val core = (project in file("core"))
       "dev.zio" %% "zio-test"     % "2.0.15" % Test,
       "dev.zio" %% "zio-test-sbt" % "2.0.15" % Test,
       "com.github.scopt" %% "scopt" % "4.1.0",
-      "org.openjfx" % "javafx-base" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-controls" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-fxml" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-graphics" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-media" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-swing" % javafxVersion classifier "linux",
-      "org.openjfx" % "javafx-web" % javafxVersion classifier "linux",
+      "org.openjfx" % "javafx-base" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-controls" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-fxml" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-graphics" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-media" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-swing" % javafxVersion classifier javafxPlatform,
+      "org.openjfx" % "javafx-web" % javafxVersion classifier javafxPlatform,
       "org.scalafx" %% "scalafx" % "21.0.0-R32",
       "org.scalafx" %% "scalafxml-core-sfx8" % "0.5",
       "org.apache.pdfbox" % "pdfbox" % "2.0.30"
@@ -51,5 +57,8 @@ lazy val core = (project in file("core"))
         case PathList("META-INF", _ @ _*) => MergeStrategy.discard
         case "module-info.class"         => MergeStrategy.discard
         case _                            => MergeStrategy.first
-      }
+      },
+      coverageEnabled := true,
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true
     )

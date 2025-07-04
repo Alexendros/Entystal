@@ -10,22 +10,20 @@ import entystal.viewmodel.RegistroViewModel
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
 import entystal.ledger.Ledger
+import java.util.Locale
 import zio.Runtime
 import java.util.Locale
 
 /** Vista principal con registro y pestañas de historial */
+
 class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
-
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
-      accessibleText = "Tipo de registro"
-      focusTraversable = true
     }
-
   private val idField = new TextField() {
     text <==> vm.identificador
     promptText <== I18n.binding("prompt.id")
@@ -68,15 +66,28 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     ThemeManager.applyTheme(scene, theme)
   }
 
+  private def updateTexts(): Unit = {
+    labelTipo.text = I18n("label.tipo")
+    labelId.text = I18n("label.id")
+    labelDescripcion.text =
+      if (tipoChoice.value == "inversion") I18n("label.cantidad")
+      else I18n("label.descripcion")
+    idField.promptText = I18n("prompt.id")
+    descField.promptText = I18n("prompt.desc")
+  }
+
+  I18n.register(() => updateTexts())
+  updateTexts()
+
   private val registroPane = new VBox(10) {
     padding = Insets(20)
     children = Seq(
       new GridPane {
         hgap = 10
         vgap = 10
-        add(labelTipo, 0, 0)
+        add(new Label("Tipo"), 0, 0)
         add(tipoChoice, 1, 0)
-        add(labelId, 0, 1)
+        add(new Label("ID"), 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)

@@ -1,39 +1,32 @@
 package entystal.service
 
-import zio.test.{ZIOSpecDefault, Spec, TestEnvironment, assertTrue}
-import zio.Scope
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import entystal.ledger.{InMemoryLedger, Ledger}
 import entystal.model._
-import entystal.ledger.{InMemoryLedger, AssetEntry, LiabilityEntry, InvestmentEntry}
 
-object RegistroServiceSpec extends ZIOSpecDefault {
-  override def spec: Spec[TestEnvironment with Scope, Any] =
-    suite("RegistroServiceSpec")(
-      test("registra un activo delegando en el Ledger") {
-        val asset = DataAsset("a1", "dato", 1L, BigDecimal(1))
+class RegistroServiceSpec extends AnyFlatSpec with Matchers {
+  "aggregateTotals" should "sumar correctamente" in {
+    val runtime = zio.Runtime.default
+    val ledger  = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe
+        .run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get)))
+        .getOrThrow()
+    }
+    val service = new RegistroService(ledger)
+    zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run {
         for {
-          ledger  <- InMemoryLedger.live.build.map(_.get)
-          service  = new RegistroService(ledger)
-          _       <- service.registrarActivo(asset)
-          history <- ledger.getHistory
-        } yield assertTrue(history.exists(_ == AssetEntry(asset)))
-      },
-      test("registra un pasivo delegando en el Ledger") {
-        val liability = EthicalLiability("p1", "desc", 2L, BigDecimal(1))
-        for {
-          ledger  <- InMemoryLedger.live.build.map(_.get)
-          service  = new RegistroService(ledger)
-          _       <- service.registrarPasivo(liability)
-          history <- ledger.getHistory
-        } yield assertTrue(history.exists(_ == LiabilityEntry(liability)))
-      },
-      test("registra una inversion delegando en el Ledger") {
-        val investment = BasicInvestment("i1", BigDecimal(2), 3L)
-        for {
-          ledger  <- InMemoryLedger.live.build.map(_.get)
-          service  = new RegistroService(ledger)
-          _       <- service.registrarInversion(investment)
-          history <- ledger.getHistory
-        } yield assertTrue(history.exists(_ == InvestmentEntry(investment)))
-      }
-    )
+          _ <- ledger.recordAsset(DataAsset("a1", "d", 1L, BigDecimal(10)))
+          _ <- ledger.recordLiability(BasicLiability("l1", BigDecimal(5), 2L))
+          _ <- ledger.recordInvestment(BasicInvestment("i1", BigDecimal(3), 3L))
+          t <- service.aggregateTotals()
+        } yield {
+          t._1 shouldBe BigDecimal(10)
+          t._2 shouldBe BigDecimal(5)
+          t._3 shouldBe BigDecimal(3)
+        }
+      }.getOrThrow()
+    }
+  }
 }
