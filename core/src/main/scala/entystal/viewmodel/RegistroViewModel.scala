@@ -4,6 +4,7 @@ import scalafx.beans.property.{StringProperty, ObjectProperty}
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
 import entystal.ledger.Ledger
+import entystal.util.{CsvExporter, PdfExporter}
 import zio.Runtime
 
 /** ViewModel para el formulario de registro */
@@ -57,5 +58,27 @@ class RegistroViewModel(ledger: Ledger)(implicit runtime: Runtime[Any]) {
         }
     }
     "Registro completado"
+  }
+
+  /** Exporta el historial a CSV y devuelve mensaje de confirmación */
+  def exportCsv(path: String = "ledger.csv"): String = {
+    val entries = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
+    }
+    zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(CsvExporter.save(entries, path)).getOrThrow()
+    }
+    s"CSV exportado en $path"
+  }
+
+  /** Exporta el historial a PDF y devuelve mensaje de confirmación */
+  def exportPdf(path: String = "ledger.pdf"): String = {
+    val entries = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
+    }
+    zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(PdfExporter.save(entries, path)).getOrThrow()
+    }
+    s"PDF exportado en $path"
   }
 }
