@@ -1,14 +1,13 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField}
+import scalafx.scene.control.{Button, ChoiceBox, Label, TextField, CheckBox}
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
-import entystal.i18n.I18n
-import java.util.Locale
+import entystal.gui.ThemeManager
 
 /** Vista principal de registro */
 class MainView(vm: RegistroViewModel) {
@@ -39,7 +38,10 @@ class MainView(vm: RegistroViewModel) {
 
   private val mensajeLabel = new Label()
 
-  private val registrarBtn = new Button() {
+  private val darkModeSwitch = new CheckBox("Tema oscuro")
+  darkModeSwitch.selected = ThemeManager.loadTheme() == ThemeManager.Dark
+
+  private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
     focusTraversable = true
@@ -57,23 +59,10 @@ class MainView(vm: RegistroViewModel) {
     updateTexts()
   }
 
-  langChoice.value.onChange { (_, _, nv) =>
-    if (nv != null) I18n.setLocale(Locale.forLanguageTag(nv))
+  darkModeSwitch.selected.onChange { (_, _, nv) =>
+    val theme = if (nv) ThemeManager.Dark else ThemeManager.Light
+    ThemeManager.applyTheme(scene, theme)
   }
-
-  private def updateTexts(): Unit = {
-    labelTipo.text = I18n("label.tipo")
-    labelId.text = I18n("label.id")
-    labelDescripcion.text =
-      if (tipoChoice.value == "inversion") I18n("label.cantidad")
-      else I18n("label.descripcion")
-    idField.promptText = I18n("prompt.id")
-    descField.promptText = I18n("prompt.desc")
-    registrarBtn.text = I18n("button.registrar")
-  }
-
-  I18n.register(() => updateTexts())
-  updateTexts()
 
   val rootPane = new VBox(10) {
     padding = Insets(20)
@@ -90,14 +79,14 @@ class MainView(vm: RegistroViewModel) {
       },
       langChoice,
       registrarBtn,
-      new VBox(5) {
-        children = Seq(exportCsvBtn, exportPdfBtn)
-      },
+      darkModeSwitch,
       mensajeLabel
     )
   }
 
   val scene = new Scene(400, 200) {
     root = rootPane
+    // Cargar tema guardado al crear la vista
+    stylesheets += ThemeManager.loadTheme().css
   }
 }
