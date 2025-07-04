@@ -3,44 +3,37 @@ package entystal.viewmodel
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import entystal.ledger.InMemoryLedger
-import entystal.service.TestNotifier
 import zio.{Runtime, ZIO}
 
 class RegistroViewModelSpec extends AnyFlatSpec with Matchers {
   implicit val runtime: Runtime[Any] = Runtime.default
 
-  private def newVm(notifier: TestNotifier) = {
+  private def newVm() = {
     val ledger = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
     }
-    new RegistroViewModel(ledger, notifier)
+    new RegistroViewModel(ledger)
   }
 
-  "RegistroViewModel" should "notificar error si falta ID" in {
-    val notifier = new TestNotifier
-    val vm       = newVm(notifier)
+  "RegistroViewModel" should "devolver error si falta ID" in {
+    val vm = newVm()
     vm.descripcion.value = "d"
-    vm.registrar()
-    notifier.last shouldBe Some("error" -> "ID requerido")
+    vm.registrar() shouldBe "ID requerido"
   }
 
-  it should "notificar error si la cantidad no es numérica" in {
-    val notifier = new TestNotifier
-    val vm       = newVm(notifier)
+  it should "devolver error si la cantidad no es numérica" in {
+    val vm = newVm()
     vm.tipo.value = "inversion"
     vm.identificador.value = "inv1"
     vm.descripcion.value = "abc"
-    vm.registrar()
-    notifier.last shouldBe Some("error" -> "La cantidad debe ser numérica")
+    vm.registrar() shouldBe "La cantidad debe ser numérica"
   }
 
-  it should "notificar éxito al registrar un activo" in {
-    val notifier = new TestNotifier
-    val vm       = newVm(notifier)
+  it should "registrar un activo correctamente" in {
+    val vm = newVm()
     vm.tipo.value = "activo"
     vm.identificador.value = "a1"
     vm.descripcion.value = "desc"
-    vm.registrar()
-    notifier.last shouldBe Some("success" -> "Registro completado")
+    vm.registrar() shouldBe "Registro completado"
   }
 }
