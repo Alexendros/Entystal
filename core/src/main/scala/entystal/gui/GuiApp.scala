@@ -6,6 +6,7 @@ import entystal.{EntystalModule}
 import entystal.ledger.Ledger
 import entystal.viewmodel.RegistroViewModel
 import entystal.view.MainView
+import entystal.gui.ThemeManager
 import zio.Runtime
 
 /** Lanzador principal de la interfaz gráfica */
@@ -24,5 +25,7 @@ object GuiApp extends JFXApp3 {
       title = "Entystal GUI"
       scene = view.scene
     }
+    // Aplicar tema guardado al iniciar
+    ThemeManager.applyTheme(view.scene, ThemeManager.loadTheme())
   }
 }

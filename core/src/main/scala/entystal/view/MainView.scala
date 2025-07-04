@@ -1,12 +1,13 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, TextField}
+import scalafx.scene.control.{Button, ChoiceBox, Label, TextField, CheckBox}
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
+import entystal.gui.ThemeManager
 
 /** Vista principal de registro */
 class MainView(vm: RegistroViewModel) {
@@ -29,6 +30,9 @@ class MainView(vm: RegistroViewModel) {
 
   private val mensajeLabel = new Label()
 
+  private val darkModeSwitch = new CheckBox("Tema oscuro")
+  darkModeSwitch.selected = ThemeManager.loadTheme() == ThemeManager.Dark
+
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
@@ -36,6 +40,11 @@ class MainView(vm: RegistroViewModel) {
 
   tipoChoice.value.onChange { (_, _, nv) =>
     labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
+  }
+
+  darkModeSwitch.selected.onChange { (_, _, nv) =>
+    val theme = if (nv) ThemeManager.Dark else ThemeManager.Light
+    ThemeManager.applyTheme(scene, theme)
   }
 
   val rootPane = new VBox(10) {
@@ -52,11 +61,14 @@ class MainView(vm: RegistroViewModel) {
         add(descField, 1, 2)
       },
       registrarBtn,
+      darkModeSwitch,
       mensajeLabel
     )
   }
 
   val scene = new Scene(400, 200) {
     root = rootPane
+    // Cargar tema guardado al crear la vista
+    stylesheets += ThemeManager.loadTheme().css
   }
 }
