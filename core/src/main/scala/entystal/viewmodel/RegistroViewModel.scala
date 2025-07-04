@@ -1,40 +1,44 @@
 package entystal.viewmodel
 
-import scalafx.beans.property.{StringProperty, ObjectProperty}
+import scalafx.beans.property.StringProperty
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
 import entystal.service.RegistroService
 import zio.Runtime
+import entystal.i18n.I18n
 
 /** ViewModel para el formulario de registro */
 class RegistroViewModel(service: RegistroService)(implicit runtime: Runtime[Any]) {
+
   val tipo          = StringProperty("activo")
   val identificador = StringProperty("")
   val descripcion   = StringProperty("")
 
   /** Validación reactiva de los campos */
   val puedeRegistrar: BooleanBinding = Bindings.createBooleanBinding(
-    () => {
-      val idOk   = identificador.value.trim.nonEmpty
-      val descOk = descripcion.value.trim.nonEmpty
-      val qtyOk  = !tipo.value.equalsIgnoreCase("inversion") ||
-        descripcion.value.matches("^\\d+(\\.\\d+)?$")
-      idOk && descOk && qtyOk
-    },
+    () => validator.validate(RegistroData(tipo.value, identificador.value, descripcion.value)).isRight,
     identificador,
     descripcion,
-    tipo
+    tipo,
   )
 
-  /** Devuelve mensaje de error o confirma el registro */
-  def registrar(): String = {
+  /** Ejecuta el registro mostrando el resultado mediante el notifier */
+  def registrar(): Unit = {
     if (!puedeRegistrar.value) {
-      if (identificador.value.trim.isEmpty)
-        return "ID requerido"
-      if (descripcion.value.trim.isEmpty)
-        return if (tipo.value == "inversion") "Cantidad requerida" else "Descripción requerida"
-      if (tipo.value == "inversion" && !descripcion.value.matches("^\\d+(\\.\\d+)?$"))
-        return "La cantidad debe ser numérica"
+      if (identificador.value.trim.isEmpty) {
+        notifier.error("ID requerido")
+        return
+      }
+      if (descripcion.value.trim.isEmpty) {
+        notifier.error(
+          if (tipo.value == "inversion") "Cantidad requerida" else "Descripción requerida"
+        )
+        return
+      }
+      if (tipo.value == "inversion" && !descripcion.value.matches("^\\d+(\\.\\d+)?$")) {
+        notifier.error("La cantidad debe ser numérica")
+        return
+      }
     }
 
     val ts = System.currentTimeMillis
@@ -56,6 +60,6 @@ class RegistroViewModel(service: RegistroService)(implicit runtime: Runtime[Any]
           runtime.unsafe.run(service.registrarInversion(investment)).getOrThrow()
         }
     }
-    "Registro completado"
+    notifier.success("Registro completado")
   }
 }
