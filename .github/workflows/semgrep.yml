@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run Semgrep scan
         run: semgrep scan --config=auto --sarif --output=semgrep-results.sarif
