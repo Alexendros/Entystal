@@ -5,9 +5,10 @@ final case class RegistroData(tipo: String, identificador: String, descripcion: 
 
 /** Encapsula la l\u00f3gica de validaci\u00f3n para el registro */
 class RegistroValidator {
-  /**
-    * Valida el conjunto de datos.
-    * @return Right(()) si es correcto o Left(mensaje de error)
+
+  /** Valida el conjunto de datos.
+    * @return
+    *   Right(()) si es correcto o Left(mensaje de error)
     */
   def validate(data: RegistroData): Either[String, Unit] = {
     if (data.identificador.trim.isEmpty) Left("ID requerido")

@@ -20,6 +20,11 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
+  private val langChoice       =
+    new ChoiceBox[String](ObservableBuffer("es", "en")) {
+      value = I18n.locale.value.getLanguage
+    }
+
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
@@ -93,19 +98,11 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
         add(descField, 1, 2)
       },
       langChoice,
-      darkModeSwitch,
-      registrarBtn
-    )
-  }
-
-  private val busquedaView  = new BusquedaView(ledger)
-  private val dashboardView = new BusquedaView(ledger)
-
-  private val tabPane = new TabPane {
-    tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false },
-      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
+      registrarBtn,
+      new VBox(5)  {
+        children = Seq(exportCsvBtn, exportPdfBtn)
+      },
+      mensajeLabel
     )
   }
 
