@@ -1,6 +1,8 @@
-name: CI
+name: Scala CI
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -26,12 +28,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Comprobar conflictos de fusi\u00f3n
+        if: github.event_name == 'pull_request'
         run: |
           git fetch origin ${{ github.base_ref }}
           git merge --no-commit --no-ff origin/${{ github.base_ref }} || { echo "Conflictos detectados con la rama base"; exit 1; }
       - name: Configurar Java y sbt
         uses: coursier/setup-action@v1
         with:
+          jvm: temurin:17
           apps: sbt
       - name: Instalar cliente PostgreSQL
         run: sudo apt-get update && sudo apt-get install -y postgresql-client

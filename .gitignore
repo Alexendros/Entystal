@@ -5,3 +5,4 @@ core/target/
 .idea
 
 project/project/
+project/build.properties
