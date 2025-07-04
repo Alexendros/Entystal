@@ -18,7 +18,7 @@ object GuiApp extends JFXApp3 {
         .getOrThrow()
     }
     val vm                             = new RegistroViewModel(ledger)
-    val view                           = new MainView(vm)
+    val view                           = new MainView(vm, ledger)
 
     stage = new JFXApp3.PrimaryStage {
       title = "Entystal GUI"
