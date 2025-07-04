@@ -3,11 +3,11 @@ package entystal.viewmodel
 import scalafx.beans.property.{StringProperty, ObjectProperty}
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
-import entystal.ledger.Ledger
+import entystal.service.RegistroService
 import zio.Runtime
 
 /** ViewModel para el formulario de registro */
-class RegistroViewModel(ledger: Ledger)(implicit runtime: Runtime[Any]) {
+class RegistroViewModel(service: RegistroService)(implicit runtime: Runtime[Any]) {
   val tipo          = StringProperty("activo")
   val identificador = StringProperty("")
   val descripcion   = StringProperty("")
@@ -42,18 +42,18 @@ class RegistroViewModel(ledger: Ledger)(implicit runtime: Runtime[Any]) {
       case "activo" =>
         val asset = DataAsset(identificador.value, descripcion.value, ts, BigDecimal(1))
         zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordAsset(asset)).getOrThrow()
+          runtime.unsafe.run(service.registrarActivo(asset)).getOrThrow()
         }
       case "pasivo" =>
         val liability = EthicalLiability(identificador.value, descripcion.value, ts, BigDecimal(1))
         zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordLiability(liability)).getOrThrow()
+          runtime.unsafe.run(service.registrarPasivo(liability)).getOrThrow()
         }
       case _        =>
         val qty        = BigDecimal(descripcion.value)
         val investment = BasicInvestment(identificador.value, qty, ts)
         zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordInvestment(investment)).getOrThrow()
+          runtime.unsafe.run(service.registrarInversion(investment)).getOrThrow()
         }
     }
     "Registro completado"
