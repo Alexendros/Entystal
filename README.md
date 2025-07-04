@@ -98,3 +98,20 @@ Si la base de datos no está disponible en `localhost:5432` las pruebas se marca
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Windows y macOS
+
+Tras instalar Java y sbt, los comandos de este README funcionan igual en ambos sistemas.
+Puedes ejecutar la aplicación con:
+
+```bash
+sbt run
+```
+
+o lanzar la GUI directamente:
+
+```bash
+sbt "core/runMain entystal.gui.GuiApp"
+```
+
+Gracias a la variable `javafxPlatform` definida en `build.sbt` las librerías de OpenJFX se seleccionan automáticamente para tu sistema operativo.

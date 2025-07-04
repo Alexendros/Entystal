@@ -3,7 +3,8 @@ package entystal.viewmodel
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import entystal.ledger.InMemoryLedger
-import entystal.service.{RegistroService, TestNotifier}
+import entystal.service.{TestNotifier, RegistroService}
+import entystal.viewmodel.RegistroValidator
 import zio.{Runtime, ZIO}
 
 class RegistroViewModelSpec extends AnyFlatSpec with Matchers {
@@ -13,8 +14,9 @@ class RegistroViewModelSpec extends AnyFlatSpec with Matchers {
     val ledger = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
     }
-    val service = new RegistroService(ledger)
-    new RegistroViewModel(service, notifier)
+    val service    = new RegistroService(ledger)
+    val validator  = new RegistroValidator
+    new RegistroViewModel(service, validator, notifier)
   }
 
   "RegistroViewModel" should "notificar error si falta ID" in {
