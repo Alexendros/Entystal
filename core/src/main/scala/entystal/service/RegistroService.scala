@@ -7,8 +7,11 @@ import zio.UIO
 class RegistroService(private val ledger: Ledger) {
   def registrarActivo(asset: Asset): UIO[Unit] =
     ledger.recordAsset(asset)
+
   def registrarPasivo(liability: Liability): UIO[Unit] =
     ledger.recordLiability(liability)
+
   def registrarInversion(investment: Investment): UIO[Unit] =
     ledger.recordInvestment(investment)
 }
+
