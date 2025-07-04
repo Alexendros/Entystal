@@ -6,27 +6,23 @@ import entystal.model._
 import entystal.ledger.Ledger
 import entystal.service.Notifier
 import zio.Runtime
+import entystal.i18n.I18n
 
 /** ViewModel para el formulario de registro */
 class RegistroViewModel(ledger: Ledger, notifier: Notifier)(implicit
     runtime: Runtime[Any]
 ) {
+ 
   val tipo          = StringProperty("activo")
   val identificador = StringProperty("")
   val descripcion   = StringProperty("")
 
   /** Validación reactiva de los campos */
   val puedeRegistrar: BooleanBinding = Bindings.createBooleanBinding(
-    () => {
-      val idOk   = identificador.value.trim.nonEmpty
-      val descOk = descripcion.value.trim.nonEmpty
-      val qtyOk  = !tipo.value.equalsIgnoreCase("inversion") ||
-        descripcion.value.matches("^\\d+(\\.\\d+)?$")
-      idOk && descOk && qtyOk
-    },
+    () => validator.validate(RegistroData(tipo.value, identificador.value, descripcion.value)).isRight,
     identificador,
     descripcion,
-    tipo
+    tipo,
   )
 
   /** Ejecuta el registro mostrando el resultado mediante el notifier */

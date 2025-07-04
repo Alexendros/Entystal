@@ -13,6 +13,12 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 - Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
 - Generación de JAR ejecutable mediante `sbt-assembly`.
 
+## Accesibilidad
+
+La GUI ahora define texto accesible (`accessibleText`) en cada botón y campo,
+atajos de teclado mediante `mnemonicParsing` para las acciones principales y un
+orden de tabulación lógico para navegar sólo con el teclado.
+
 ## Requisitos
 
 - Java JDK 8 o superior.
