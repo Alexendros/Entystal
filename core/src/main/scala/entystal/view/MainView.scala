@@ -10,28 +10,39 @@ import entystal.viewmodel.RegistroViewModel
 
 /** Vista principal de registro */
 class MainView(vm: RegistroViewModel) {
-  private val labelDescripcion = new Label("Descripción")
+  private val labelDescripcion = new Label("Descripción") {
+    accessibleText = "Etiqueta descripción"
+  }
 
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
+      accessibleText = "Tipo de registro"
+      focusTraversable = true
     }
 
   private val idField = new TextField() {
     text <==> vm.identificador
     promptText = "ID"
+    accessibleText = "Identificador"
+    focusTraversable = true
   }
 
   private val descField = new TextField() {
     text <==> vm.descripcion
     promptText = "Descripción o cantidad"
+    accessibleText = "Descripción o cantidad"
+    focusTraversable = true
   }
 
   private val mensajeLabel = new Label()
 
-  private val registrarBtn = new Button("Registrar") {
+  private val registrarBtn = new Button("_Registrar") {
+    mnemonicParsing = true
+    accessibleText = "Registrar datos"
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
+    focusTraversable = true
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
