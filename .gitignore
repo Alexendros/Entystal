@@ -3,5 +3,8 @@ project/target/
 core/target/
 .project
 .idea
+.bsp/
+.metals/
+*.log
 
 project/project/
