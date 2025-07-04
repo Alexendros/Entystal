@@ -1,0 +1,7 @@
+target/
+project/target/
+core/target/
+.project
+.idea
+
+project/project/

@@ -11,21 +11,29 @@ import entystal.gui.ThemeManager
 
 /** Vista principal de registro */
 class MainView(vm: RegistroViewModel) {
-  private val labelDescripcion = new Label("Descripción")
+  private val labelTipo        = new Label()
+  private val labelId          = new Label()
+  private val labelDescripcion = new Label()
+  private val langChoice =
+    new ChoiceBox[String](ObservableBuffer("es", "en")) {
+      value = I18n.locale.value.getLanguage
+    }
 
   private val tipoChoice =
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
+      accessibleText = "Tipo de registro"
+      focusTraversable = true
     }
 
   private val idField = new TextField() {
     text <==> vm.identificador
-    promptText = "ID"
+    promptText = I18n("prompt.id")
   }
 
   private val descField = new TextField() {
     text <==> vm.descripcion
-    promptText = "Descripción o cantidad"
+    promptText = I18n("prompt.desc")
   }
 
   private val mensajeLabel = new Label()
@@ -36,10 +44,19 @@ class MainView(vm: RegistroViewModel) {
   private val registrarBtn = new Button("Registrar") {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => mensajeLabel.text = vm.registrar()
+    focusTraversable = true
+  }
+
+  private val exportCsvBtn = new Button("Exportar CSV") {
+    onAction = _ => mensajeLabel.text = vm.exportCsv()
+  }
+
+  private val exportPdfBtn = new Button("Exportar PDF") {
+    onAction = _ => mensajeLabel.text = vm.exportPdf()
   }
 
   tipoChoice.value.onChange { (_, _, nv) =>
-    labelDescripcion.text = if (nv == "inversion") "Cantidad" else "Descripción"
+    updateTexts()
   }
 
   darkModeSwitch.selected.onChange { (_, _, nv) =>
@@ -53,13 +70,14 @@ class MainView(vm: RegistroViewModel) {
       new GridPane {
         hgap = 10
         vgap = 10
-        add(new Label("Tipo"), 0, 0)
+        add(labelTipo, 0, 0)
         add(tipoChoice, 1, 0)
-        add(new Label("ID"), 0, 1)
+        add(labelId, 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
       },
+      langChoice,
       registrarBtn,
       darkModeSwitch,
       mensajeLabel
