@@ -10,7 +10,7 @@ import zio.Runtime
 class RegistroViewModel(
     service: RegistroService,
     notifier: Notifier,
-    validator: RegistroValidator = new RegistroValidator,
+    validator: RegistroValidator = new RegistroValidator
 )(implicit runtime: Runtime[Any]) {
 
   val tipo          = StringProperty("activo")
@@ -19,10 +19,11 @@ class RegistroViewModel(
 
   /** Validación reactiva de los campos */
   val puedeRegistrar: BooleanBinding = Bindings.createBooleanBinding(
-    () => validator.validate(RegistroData(tipo.value, identificador.value, descripcion.value)).isRight,
+    () =>
+      validator.validate(RegistroData(tipo.value, identificador.value, descripcion.value)).isRight,
     identificador,
     descripcion,
-    tipo,
+    tipo
   )
 
   /** Ejecuta el registro mostrando el resultado mediante el notifier */

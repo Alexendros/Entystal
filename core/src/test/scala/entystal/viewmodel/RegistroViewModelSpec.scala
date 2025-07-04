@@ -11,7 +11,7 @@ class RegistroViewModelSpec extends AnyFlatSpec with Matchers {
   implicit val runtime: Runtime[Any] = Runtime.default
 
   private def newVm(notifier: TestNotifier) = {
-    val ledger = zio.Unsafe.unsafe { implicit u =>
+    val ledger  = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
     }
     val service = new RegistroService(ledger)

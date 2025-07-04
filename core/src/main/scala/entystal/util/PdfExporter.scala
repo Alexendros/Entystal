@@ -12,8 +12,8 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream
 object PdfExporter {
   def save(entries: List[LedgerEntry], path: String): Task[Unit] =
     ZIO.attempt {
-      val doc  = new PDDocument()
-      val page = new PDPage(PDRectangle.LETTER)
+      val doc    = new PDDocument()
+      val page   = new PDPage(PDRectangle.LETTER)
       doc.addPage(page)
       val stream = new PDPageContentStream(doc, page)
       try {
@@ -22,9 +22,9 @@ object PdfExporter {
         stream.newLineAtOffset(50, page.getMediaBox.getHeight - 50)
         entries.zipWithIndex.foreach { case (e, idx) =>
           val line = e match {
-            case AssetEntry(asset)       => s"Asset: ${asset.id}"
-            case LiabilityEntry(liab)    => s"Liability: ${liab.id}"
-            case InvestmentEntry(inv)    => s"Investment: ${inv.id}"
+            case AssetEntry(asset)    => s"Asset: ${asset.id}"
+            case LiabilityEntry(liab) => s"Liability: ${liab.id}"
+            case InvestmentEntry(inv) => s"Investment: ${inv.id}"
           }
           if (idx > 0) stream.newLineAtOffset(0, -15)
           stream.showText(line)

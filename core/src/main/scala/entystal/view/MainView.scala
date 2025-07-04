@@ -17,21 +17,24 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
-  private val langChoice = new ChoiceBox[String](ObservableBuffer("es", "en")) {
+  private val langChoice       = new ChoiceBox[String](ObservableBuffer("es", "en")) {
     value = I18n.locale.value.getLanguage
   }
-  private val tipoChoice = new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
-    value <==> vm.tipo
-  }
-  private val idField = new TextField() { text <==> vm.identificador }
-  private val descField = new TextField() { text <==> vm.descripcion }
-  private val registrarBtn = new Button() {
+  private val tipoChoice       =
+    new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
+      value <==> vm.tipo
+    }
+  private val idField          = new TextField() { text <==> vm.identificador }
+  private val descField        = new TextField() { text <==> vm.descripcion }
+  private val registrarBtn     = new Button() {
     disable <== vm.puedeRegistrar.not()
     onAction = _ => vm.registrar()
   }
 
   tipoChoice.value.onChange { (_, _, _) => updateTexts() }
-  langChoice.value.onChange { (_, _, nv) => if (nv != null) I18n.setLocale(Locale.forLanguageTag(nv)) }
+  langChoice.value.onChange { (_, _, nv) =>
+    if (nv != null) I18n.setLocale(Locale.forLanguageTag(nv))
+  }
 
   private def updateTexts(): Unit = {
     labelTipo.text = I18n("label.tipo")
@@ -70,8 +73,8 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
 
   private val tabPane = new TabPane {
     tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false },
+      new Tab { text = "Registro"; content = registroPane; closable = false        },
+      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
       new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
     )
   }
