@@ -2,10 +2,12 @@ package entystal.auth
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import entystal.security.SecretManager
 import java.util.Date
 
 object AuthService {
-  private val secret = sys.env.getOrElse("JWT_SECRET", "entystal-secret")
+  private val secret =
+    SecretManager.jwtSecret.getOrElse(sys.env.getOrElse("JWT_SECRET", "entystal-secret"))
 
   private val algo = Algorithm.HMAC256(secret)
 
