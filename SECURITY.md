@@ -43,3 +43,8 @@ Si detectas una vulnerabilidad de seguridad en Entystal, sigue estos pasos para 
    - Si lo deseas, tu contribución será reconocida en las notas de la versión correspondiente.
 
 **Gracias por ayudar a mantener Entystal seguro para toda la comunidad.**
+
+## Cumplimiento
+
+Consulta la [lista de verificación ISO 27001](docs/compliance/iso27001.md) para
+revisar los controles de seguridad aplicados.

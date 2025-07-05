@@ -46,3 +46,6 @@ Tras la instalación, comprueba la versión con:
 ```bash
 sbt --version
 ```
+
+Recuerda usar PostgreSQL \>= 17.3 y aplicar los parches **CVE-2024-10979** y
+**CVE-2024-4317** antes de ejecutar el proyecto.

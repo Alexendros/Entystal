@@ -13,6 +13,7 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 - Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
 - Generación de JAR ejecutable mediante `sbt-assembly`.
 - Nuevo módulo `rest` con API HTTP para registrar eventos y consultar historial.
+- Nuevo módulo `gateway` con Akka HTTP que aplica rate limiting y SSO/SAML, y enruta al `RestServer`.
 
 ## Accesibilidad
 
@@ -20,10 +21,20 @@ La GUI ahora define texto accesible (`accessibleText`) en cada botón y campo,
 atajos de teclado mediante `mnemonicParsing` para las acciones principales y un
 orden de tabulación lógico para navegar sólo con el teclado.
 
+## Arquitectura
+
+```
+[Usuarios] -> gateway (Akka HTTP + SAML) -> RestServer (http4s) -> core
+```
+
+El `gateway` autentica via SAML, limita la tasa por IP y delega las peticiones
+al `RestServer`, que a su vez expone la lógica definida en `core`.
+
 ## Requisitos
 
 - Java JDK 8 o superior.
 - [sbt](https://www.scala-sbt.org/). Si no lo tienes, ejecuta `scripts/install_sbt.sh` para instalarlo automáticamente.
+- PostgreSQL \>= 17.3 con los parches de seguridad **CVE-2024-10979** y **CVE-2024-4317** aplicados.
 
 ## Instalación
 
@@ -36,15 +47,19 @@ orden de tabulación lógico para navegar sólo con el teclado.
    ```bash
    bash scripts/install_sbt.sh
    ```
-3. Compila y formatea el proyecto:
+3. Inicializa la base de datos y aplica los parches:
+   ```bash
+   bash scripts/apply_db_patches.sh
+   ```
+4. Compila y formatea el proyecto:
    ```bash
    sbt scalafmtAll compile
    ```
-4. Ejecuta las pruebas unitarias:
+5. Ejecuta las pruebas unitarias:
    ```bash
    sbt test
    ```
-5. (Opcional) Genera un JAR ensamblado para distribuir la GUI:
+6. (Opcional) Genera un JAR ensamblado para distribuir la GUI:
    ```bash
    sbt assembly
    # El archivo quedará en target/scala-2.13/*-assembly.jar
@@ -91,7 +106,8 @@ java -jar target/scala-2.13/entystal-core-assembly-*.jar
 En la pestaña **Registro** hay un botón *Cambiar tema*. Al pulsarlo se alterna
 entre modo claro y oscuro y la aplicación recordará tu preferencia.
 
-Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_schema.sql` en tu instancia de PostgreSQL.
+Antes de utilizar `SqlLedger` ejecuta `scripts/apply_db_patches.sh` para
+inicializar el esquema y aplicar las correcciones de seguridad.
 
 ## Pruebas de integración
 
@@ -109,6 +125,15 @@ Genera el informe de cobertura con:
 sbt coverage test coverageAggregate
 ```
 El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
+
+## Reportes de seguridad (OWASP ZAP)
+
+Cada ejecución del workflow `ZAP Scan` genera los archivos `report_html.html`,
+`report_md.md` y `report_json.json`.
+Para revisarlos:
+
+1. En GitHub abre la pestaña **Actions** y elige el job `ZAP Scan` deseado.
+2. Descarga el artefacto **zap-report** y abre `report_html.html` en tu navegador.
 
 
 ## Traducciones

@@ -3,17 +3,29 @@ package entystal.service
 import entystal.ledger._
 import entystal.model._
 import entystal.viewmodel.RegistroData
-import entystal.util.{CsvExporter, PdfExporter}
+import entystal.util.{CsvExporter, PdfExporter, PrivacyUtils}
 import zio.{Runtime, UIO}
 
 /** Servicio que registra y consulta el ledger */
 class RegistroService(private val ledger: Ledger) {
   private val runtime                          = Runtime.default
-  def registrarActivo(asset: Asset): UIO[Unit] =
-    ledger.recordAsset(asset)
+  def registrarActivo(asset: Asset): UIO[Unit] = asset match {
+    case d: DataAsset =>
+      ledger.recordAsset(d.copy(data = PrivacyUtils.sanitize(d.data)))
+    case other        =>
+      ledger.recordAsset(other)
+  }
 
-  def registrarPasivo(liability: Liability): UIO[Unit] =
-    ledger.recordLiability(liability)
+  def registrarPasivo(liability: Liability): UIO[Unit] = liability match {
+    case e: EthicalLiability =>
+      ledger.recordLiability(e.copy(description = PrivacyUtils.sanitize(e.description)))
+    case s: StrategicLiability =>
+      ledger.recordLiability(s.copy(reason = PrivacyUtils.sanitize(s.reason)))
+    case l: LegalLiability =>
+      ledger.recordLiability(l.copy(law = PrivacyUtils.sanitize(l.law)))
+    case other =>
+      ledger.recordLiability(other)
+  }
 
   def registrarInversion(investment: Investment): UIO[Unit] =
     ledger.recordInvestment(investment)
@@ -23,7 +35,12 @@ class RegistroService(private val ledger: Ledger) {
     data.tipo match {
       case "activo"    =>
         registrarActivo(
-          DataAsset(data.identificador, data.descripcion, System.currentTimeMillis(), BigDecimal(1))
+          DataAsset(
+            data.identificador,
+            PrivacyUtils.sanitize(data.descripcion),
+            System.currentTimeMillis(),
+            BigDecimal(1)
+          )
         )
       case "pasivo"    =>
         registrarPasivo(
