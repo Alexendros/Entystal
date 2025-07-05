@@ -4,6 +4,7 @@ import cats.effect.{IO, IOApp}
 import cats.syntax.semigroupk._
 import org.http4s.server.Router
 import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.server.SSLClientAuthMode
 import com.comcast.ip4s._
 import entystal.service.RegistroService
 import entystal.EntystalModule
@@ -24,17 +25,26 @@ object RestServer extends IOApp.Simple {
     val api                            = JwtMiddleware(new RestRoutes(service).routes <+> Metrics.routes)
 
     val sslContext = for {
-      path <- sys.env.get("HTTPS_KEYSTORE_PATH")
-      pass <- sys.env.get("HTTPS_KEYSTORE_PASSWORD")
+      ksPath <- sys.env.get("HTTPS_KEYSTORE_PATH")
+      ksPass <- sys.env.get("HTTPS_KEYSTORE_PASSWORD")
+      tsPath <- sys.env.get("HTTPS_TRUSTSTORE_PATH")
+      tsPass <- sys.env.get("HTTPS_TRUSTSTORE_PASSWORD")
     } yield {
       val ks  = KeyStore.getInstance("PKCS12")
-      val fis = new FileInputStream(path)
-      ks.load(fis, pass.toCharArray)
+      val fis = new FileInputStream(ksPath)
+      ks.load(fis, ksPass.toCharArray)
       fis.close()
+
+      val trust = KeyStore.getInstance("PKCS12")
+      val tis   = new FileInputStream(tsPath)
+      trust.load(tis, tsPass.toCharArray)
+      tis.close()
+
       val kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm)
-      kmf.init(ks, pass.toCharArray)
+      kmf.init(ks, ksPass.toCharArray)
       val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
-      tmf.init(ks)
+      tmf.init(trust)
+
       val ctx = SSLContext.getInstance("TLS")
       ctx.init(kmf.getKeyManagers, tmf.getTrustManagers, new SecureRandom())
       ctx
@@ -45,7 +55,7 @@ object RestServer extends IOApp.Simple {
       .withHttpApp(Router("/" -> api).orNotFound)
 
     sslContext
-      .fold(builder)(ctx => builder.withSslContext(ctx))
+      .fold(builder)(ctx => builder.withSSLContext(ctx, SSLClientAuthMode.Required))
       .resource
       .useForever
   }
