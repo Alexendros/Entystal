@@ -45,25 +45,17 @@ class RegistroViewModel(
       }
     }
 
-    val ts = System.currentTimeMillis
-    tipo.value match {
-      case "activo" =>
-        val asset = DataAsset(identificador.value, descripcion.value, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(service.registrarActivo(asset)).getOrThrow()
-        }
-      case "pasivo" =>
-        val liability = EthicalLiability(identificador.value, descripcion.value, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(service.registrarPasivo(liability)).getOrThrow()
-        }
-      case _        =>
-        val qty        = BigDecimal(descripcion.value)
-        val investment = BasicInvestment(identificador.value, qty, ts)
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(service.registrarInversion(investment)).getOrThrow()
-        }
-    }
-    notifier.success("Registro completado")
+    val data = RegistroData(tipo.value, identificador.value, descripcion.value)
+    service.registrar(data)
+  }
+
+  /** Exporta el historial a CSV y devuelve mensaje de confirmación */
+  def exportCsv(path: String = "ledger.csv"): String = {
+    service.exportCsv(path)
+  }
+
+  /** Exporta el historial a PDF y devuelve mensaje de confirmación */
+  def exportPdf(path: String = "ledger.pdf"): String = {
+    service.exportPdf(path)
   }
 }

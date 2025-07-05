@@ -7,12 +7,15 @@ import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
 import entystal.viewmodel.RegistroViewModel
+import entystal.gui.ThemeManager
+import entystal.i18n.I18n
 import entystal.ledger.Ledger
 import entystal.i18n.I18n
 import zio.Runtime
 import java.util.Locale
 
 /** Vista principal con pestañas de registro y búsqueda */
+
 class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
@@ -56,9 +59,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
       new GridPane {
         hgap = 10
         vgap = 10
-        add(labelTipo, 0, 0)
+        add(new Label("Tipo"), 0, 0)
         add(tipoChoice, 1, 0)
-        add(labelId, 0, 1)
+        add(new Label("ID"), 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
@@ -81,5 +84,6 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
 
   val scene = new Scene(600, 400) {
     root = tabPane
+    stylesheets += ThemeManager.loadTheme().css
   }
 }

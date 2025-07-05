@@ -111,6 +111,7 @@ sbt coverage test coverageAggregate
 ```
 El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
 
+
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).
