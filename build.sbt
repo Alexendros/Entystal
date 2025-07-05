@@ -80,6 +80,8 @@ lazy val rest = (project in file("rest"))
       "io.prometheus" % "simpleclient" % "0.16.0",
       "io.prometheus" % "simpleclient_common" % "0.16.0",
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
-      "dev.zio" %% "zio-json" % "0.6.2"
+      "dev.zio" %% "zio-json" % "0.6.2",
+      "com.auth0" % "java-jwt" % "4.5.0",
+      "org.http4s" %% "http4s-blaze-server" % "0.23.17"
     )
   )
