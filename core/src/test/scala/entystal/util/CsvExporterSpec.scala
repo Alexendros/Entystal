@@ -18,6 +18,7 @@ class CsvExporterSpec extends AnyFlatSpec with Matchers {
     }
     val lines   = scala.io.Source.fromFile(tmp.toFile).getLines().toList
     lines.head shouldBe "type,id,description,timestamp"
+    lines.tail.head.startsWith("asset,a1,") shouldBe true
     tmp.toFile.delete()
   }
 }
