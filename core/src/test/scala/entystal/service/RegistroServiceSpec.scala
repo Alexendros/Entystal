@@ -7,13 +7,13 @@ import entystal.model._
 
 class RegistroServiceSpec extends AnyFlatSpec with Matchers {
   "aggregateTotals" should "sumar correctamente" in {
-    val runtime = zio.Runtime.default
-    val ledger  = zio.Unsafe.unsafe { implicit u =>
+    implicit val runtime: zio.Runtime[Any] = zio.Runtime.default
+    val ledger                             = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe
         .run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get)))
         .getOrThrow()
     }
-    val service = new RegistroService(ledger)
+    val service                            = new RegistroService(ledger)
     zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe
         .run {

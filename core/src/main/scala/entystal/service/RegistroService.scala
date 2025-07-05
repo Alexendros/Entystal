@@ -35,6 +35,7 @@ class RegistroService(private val ledger: Ledger) {
   }
 
   /** Obtiene todo el historial registrado */
+
   def history: List[LedgerEntry] =
     zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ledger.getHistory).getOrThrow()
@@ -51,6 +52,7 @@ class RegistroService(private val ledger: Ledger) {
     }
 
   /** Exporta el historial completo a CSV y devuelve la ruta */
+
   def exportCsv(path: String): String = {
     val entries = history
     zio.Unsafe.unsafe { implicit u =>
@@ -60,6 +62,7 @@ class RegistroService(private val ledger: Ledger) {
   }
 
   /** Exporta el historial completo a PDF y devuelve la ruta */
+
   def exportPdf(path: String): String = {
     val entries = history
     zio.Unsafe.unsafe { implicit u =>
