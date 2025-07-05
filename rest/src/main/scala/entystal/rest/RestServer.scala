@@ -8,6 +8,7 @@ import com.comcast.ip4s._
 import entystal.service.RegistroService
 import entystal.EntystalModule
 import entystal.auth.JwtMiddleware
+import entystal.analytics.TrendPredictor
 import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
@@ -21,7 +22,8 @@ object RestServer extends IOApp.Simple {
       runtime.unsafe.run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get))).getOrThrow()
     }
     val service                        = new RegistroService(ledger)
-    val api                            = JwtMiddleware(new RestRoutes(service).routes <+> Metrics.routes)
+    val predictor                      = new TrendPredictor(ledger)
+    val api                            = JwtMiddleware(new RestRoutes(service, predictor).routes <+> Metrics.routes)
 
     val sslContext = for {
       path <- sys.env.get("HTTPS_KEYSTORE_PATH")

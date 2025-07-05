@@ -9,6 +9,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import entystal.service.RegistroService
 import entystal.EntystalModule
+import entystal.analytics.TrendPredictor
 import entystal.viewmodel.RegistroData
 import entystal.ledger._
 import io.circe.generic.auto._
@@ -22,8 +23,9 @@ class RestRoutesSpec extends AnyFlatSpec with Matchers {
   private val ledger  = Unsafe.unsafe { implicit u =>
     runtime.unsafe.run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get))).getOrThrow()
   }
-  private val service = new RegistroService(ledger)
-  private val app     = (new RestRoutes(service).routes <+> Metrics.routes).orNotFound
+  private val service    = new RegistroService(ledger)
+  private val predictor  = new TrendPredictor(ledger)
+  private val app        = (new RestRoutes(service, predictor).routes <+> Metrics.routes).orNotFound
 
   "POST /registro" should "guardar y consultar" in {
     val req  =
@@ -41,5 +43,17 @@ class RestRoutesSpec extends AnyFlatSpec with Matchers {
     val req  = Request[IO](Method.GET, uri"/metrics")
     val resp = app.run(req).unsafeRunSync()
     resp.status shouldBe Status.Ok
+  }
+
+  "GET /predicciones" should "devolver analisis" in {
+    val postReq =
+      Request[IO](Method.POST, uri"/registro").withEntity(RegistroData("activo", "a2", "5"))
+    app.run(postReq).unsafeRunSync()
+
+    val req  = Request[IO](Method.GET, uri"/predicciones")
+    val resp = app.run(req).unsafeRunSync()
+    resp.status shouldBe Status.Ok
+    val body = resp.as[String].unsafeRunSync()
+    body.contains("a2") shouldBe true
   }
 }
