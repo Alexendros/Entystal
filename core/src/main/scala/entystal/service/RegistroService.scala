@@ -12,29 +12,8 @@ class RegistroService(private val ledger: Ledger) {
   def registrarActivo(asset: Asset): UIO[Unit] =
     ledger.recordAsset(asset)
 
-  /** Registra un activo, pasivo o inversión y devuelve un mensaje de confirmación */
-  def registrar(data: RegistroData): String = {
-    val ts = System.currentTimeMillis()
-    data.tipo match {
-      case "activo" =>
-        val asset = DataAsset(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordAsset(asset)).getOrThrow()
-        }
-      case "pasivo" =>
-        val liab = EthicalLiability(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordLiability(liab)).getOrThrow()
-        }
-      case _        =>
-        val qty = BigDecimal(data.descripcion)
-        val inv = BasicInvestment(data.identificador, qty, ts)
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordInvestment(inv)).getOrThrow()
-        }
-    }
-    "Registro completado"
-  }
+  def registrarPasivo(liability: Liability): UIO[Unit] =
+    ledger.recordLiability(liability)
 
   def registrarInversion(investment: Investment): UIO[Unit] =
     ledger.recordInvestment(investment)
@@ -70,6 +49,10 @@ class RegistroService(private val ledger: Ledger) {
         case ((a, l, i), InvestmentEntry(inv)) => (a, l, i + inv.quantity)
       }
     }
+
+  /** Devuelve el historial completo de eventos */
+  def obtenerHistorial: UIO[List[LedgerEntry]] =
+    ledger.getHistory
 
   /** Exporta el historial completo a CSV y devuelve un mensaje de confirmación */
   def exportCsv(path: String): String = {
