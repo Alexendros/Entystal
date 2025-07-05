@@ -82,6 +82,11 @@ lazy val rest = (project in file("rest"))
       "org.scalatest" %% "scalatest" % "3.2.18" % Test,
       "dev.zio" %% "zio-json" % "0.6.2",
       "com.auth0" % "java-jwt" % "4.5.0",
-      "org.http4s" %% "http4s-blaze-server" % "0.23.17"
+      "org.http4s" %% "http4s-blaze-server" % "0.23.17",
+      "io.jaegertracing" % "jaeger-client" % "1.8.1",
+      "io.opentelemetry" % "opentelemetry-api" % "1.32.0",
+      "io.opentelemetry" % "opentelemetry-sdk" % "1.32.0",
+      "io.opentelemetry" % "opentelemetry-exporter-jaeger" % "1.32.0",
+      
+      )
     )
-  )
