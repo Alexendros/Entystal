@@ -8,10 +8,15 @@ import zio.{Runtime, UIO}
 
 /** Servicio que registra y consulta el ledger */
 class RegistroService(private val ledger: Ledger) {
-  private val runtime                                       = Runtime.default
-  def registrarActivo(asset: Asset): UIO[Unit]              = ledger.recordAsset(asset)
-  def registrarPasivo(liability: Liability): UIO[Unit]      = ledger.recordLiability(liability)
-  def registrarInversion(investment: Investment): UIO[Unit] = ledger.recordInvestment(investment)
+  private val runtime                          = Runtime.default
+  def registrarActivo(asset: Asset): UIO[Unit] =
+    ledger.recordAsset(asset)
+
+  def registrarPasivo(liability: Liability): UIO[Unit] =
+    ledger.recordLiability(liability)
+
+  def registrarInversion(investment: Investment): UIO[Unit] =
+    ledger.recordInvestment(investment)
 
   /** Crea el modelo correspondiente a partir de los datos y lo registra */
   def registrar(data: RegistroData): UIO[Unit] =
@@ -50,6 +55,10 @@ class RegistroService(private val ledger: Ledger) {
         case ((a, l, i), InvestmentEntry(inv)) => (a, l, i + inv.quantity)
       }
     }
+
+  /** Devuelve el historial completo de eventos */
+  def obtenerHistorial: UIO[List[LedgerEntry]] =
+    ledger.getHistory
 
   /** Exporta el historial completo a CSV y devuelve un mensaje de confirmación */
   def exportCsv(path: String): String = {

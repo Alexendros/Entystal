@@ -18,7 +18,7 @@ import sbtassembly.AssemblyPlugin.autoImport._
 import sbtassembly.MergeStrategy
 
 lazy val root = (project in file("."))
-  .aggregate(core)
+  .aggregate(core, rest)
   .settings(
     name := "entystal-root"
   )
@@ -66,3 +66,20 @@ lazy val core = (project in file("core"))
       coverageFailOnMinimum := false,
       coverageHighlighting := true
     )
+
+lazy val rest = (project in file("rest"))
+  .dependsOn(core)
+  .settings(
+    name := "entystal-rest",
+    libraryDependencies ++= Seq(
+      "org.http4s" %% "http4s-ember-server" % "0.23.23",
+      "org.http4s" %% "http4s-dsl" % "0.23.23",
+      "org.http4s" %% "http4s-circe" % "0.23.23",
+      "org.http4s" %% "http4s-ember-client" % "0.23.23" % Test,
+      "io.circe" %% "circe-generic" % "0.14.6",
+      "io.prometheus" % "simpleclient" % "0.16.0",
+      "io.prometheus" % "simpleclient_common" % "0.16.0",
+      "org.scalatest" %% "scalatest" % "3.2.18" % Test,
+      "dev.zio" %% "zio-json" % "0.6.2"
+    )
+  )

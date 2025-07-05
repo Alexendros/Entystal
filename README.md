@@ -12,6 +12,7 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 - Interfaz de línea de comandos (CLI) para registrar eventos contables.
 - Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
 - Generación de JAR ejecutable mediante `sbt-assembly`.
+- Nuevo módulo `rest` con API HTTP para registrar eventos y consultar historial.
 
 ## Accesibilidad
 
