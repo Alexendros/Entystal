@@ -93,31 +93,24 @@ class RegistroServiceSpec extends AnyFlatSpec with Matchers {
     tmpPdf.toFile.delete()
   }
 
-  "registrarActivo" should "almacenar un Asset" in {
-    val rt     = zio.Runtime.default
-    val ledger = zio.Unsafe.unsafe { implicit u =>
-      rt.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
+  "actualizar y eliminar" should "modificar el ledger" in {
+    val runtime     = zio.Runtime.default
+    val ledger      = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
     }
-    val service = new RegistroService(ledger)
-    val asset   = DataAsset("ax", "d", 1L, BigDecimal(2))
+    val service     = new RegistroService(ledger)
     zio.Unsafe.unsafe { implicit u =>
-      rt.unsafe.run(service.registrarActivo(asset)).getOrThrow()
+      runtime.unsafe.run(service.registrar(RegistroData("activo", "a1", "desc"))).getOrThrow()
+      runtime.unsafe.run(service.actualizar("a1", "nuevo")).getOrThrow()
     }
-    val hist    = zio.Unsafe.unsafe { implicit u => rt.unsafe.run(ledger.getHistory).getOrThrow() }
-    hist.exists { case AssetEntry(a) => a.id == "ax"; case _ => false } shouldBe true
-  }
-
-  "registrarPasivo" should "almacenar un Liability" in {
-    val rt     = zio.Runtime.default
-    val ledger = zio.Unsafe.unsafe { implicit u =>
-      rt.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
+    val afterUpdate = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
     }
-    val service  = new RegistroService(ledger)
-    val liability = BasicLiability("lx", BigDecimal(3), 2L)
-    zio.Unsafe.unsafe { implicit u =>
-      rt.unsafe.run(service.registrarPasivo(liability)).getOrThrow()
+    afterUpdate.collectFirst { case AssetEntry(a: DataAsset) => a.data }.get shouldBe "nuevo"
+    zio.Unsafe.unsafe { implicit u => runtime.unsafe.run(service.eliminar("a1")).getOrThrow() }
+    val afterDelete = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
     }
-    val hist = zio.Unsafe.unsafe { implicit u => rt.unsafe.run(ledger.getHistory).getOrThrow() }
-    hist.exists { case LiabilityEntry(l) => l.id == "lx"; case _ => false } shouldBe true
+    afterDelete.exists(_.id == "a1") shouldBe false
   }
 }
