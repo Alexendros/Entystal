@@ -10,7 +10,6 @@ import entystal.viewmodel.RegistroViewModel
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
 import entystal.ledger.Ledger
-import entystal.i18n.I18n
 import zio.Runtime
 import java.util.Locale
 
@@ -59,9 +58,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
       new GridPane {
         hgap = 10
         vgap = 10
-        add(new Label("Tipo"), 0, 0)
+        add(new Label(I18n("label.tipo")), 0, 0)
         add(tipoChoice, 1, 0)
-        add(new Label("ID"), 0, 1)
+        add(new Label(I18n("label.id")), 0, 1)
         add(idField, 1, 1)
         add(labelDescripcion, 0, 2)
         add(descField, 1, 2)
@@ -76,9 +75,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
 
   private val tabPane = new TabPane {
     tabs = Seq(
-      new Tab { text = "Registro"; content = registroPane; closable = false        },
-      new Tab { text = "Búsqueda"; content = busquedaView.root; closable = false   },
-      new Tab { text = "Dashboard"; content = dashboardView.root; closable = false }
+      new Tab { text = I18n("tab.registro"); content = registroPane; closable = false        },
+      new Tab { text = I18n("tab.busqueda"); content = busquedaView.root; closable = false   },
+      new Tab { text = I18n("tab.dashboard"); content = dashboardView.root; closable = false }
     )
   }
 

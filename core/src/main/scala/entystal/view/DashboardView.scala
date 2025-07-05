@@ -6,6 +6,7 @@ import scalafx.collections.ObservableBuffer
 import javafx.scene.chart.{PieChart => JFXPieChart}
 import scalafx.scene.Scene
 import entystal.service.RegistroService
+import entystal.i18n.I18n
 import zio.Runtime
 
 /** Vista de panel de control con gráficos agregados */
@@ -13,7 +14,7 @@ class DashboardView(service: RegistroService)(implicit runtime: Runtime[Any]) {
   private val chartData = ObservableBuffer[JFXPieChart.Data]()
 
   private val chart = new SFXPieChart(chartData) {
-    title = "Totales registrados"
+    title = I18n("chart.totales")
   }
 
   val rootPane = new VBox {
@@ -30,9 +31,9 @@ class DashboardView(service: RegistroService)(implicit runtime: Runtime[Any]) {
       runtime.unsafe.run(service.aggregateTotals()).getOrThrow()
     }
     chartData.setAll(
-      new JFXPieChart.Data("Activos", totA.toDouble),
-      new JFXPieChart.Data("Pasivos", totL.toDouble),
-      new JFXPieChart.Data("Inversiones", totI.toDouble)
+      new JFXPieChart.Data(I18n("chart.activos"), totA.toDouble),
+      new JFXPieChart.Data(I18n("chart.pasivos"), totL.toDouble),
+      new JFXPieChart.Data(I18n("chart.inversiones"), totI.toDouble)
     )
   }
 

@@ -9,25 +9,26 @@ import scalafx.beans.property.ObjectProperty
 import scalafx.Includes._
 import entystal.ledger.{AssetEntry, InvestmentEntry, Ledger, LedgerEntry, LiabilityEntry}
 import entystal.view.EdicionView
+import entystal.i18n.I18n
 import zio.Runtime
 
 /** Muestra el historial con campo de búsqueda */
 class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
   private val buscarField = new TextField() {
-    promptText = "ID..."
+    promptText = s"${I18n("prompt.id")}" + "..."
   }
 
-  private val buscarBtn = new Button("Buscar") {
+  private val buscarBtn = new Button(I18n("button.buscar")) {
     onAction = _ => cargar(buscarField.text.value)
   }
 
   val tabla = new TableView[LedgerEntry]() {
     columnResizePolicy = TableView.ConstrainedResizePolicy
     columns ++= Seq(
-      new TableColumn[LedgerEntry, String]("ID")            {
+      new TableColumn[LedgerEntry, String](I18n("column.id"))            {
         cellValueFactory = c => ObjectProperty(c.value.id)
       },
-      new TableColumn[LedgerEntry, String]("Tipo")          {
+      new TableColumn[LedgerEntry, String](I18n("column.tipo"))          {
         cellValueFactory = c =>
           ObjectProperty(c.value match {
             case _: AssetEntry      => "activo"
@@ -35,15 +36,15 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
             case _: InvestmentEntry => "inversion"
           })
       },
-      new TableColumn[LedgerEntry, String]("Fecha")         {
+      new TableColumn[LedgerEntry, String](I18n("column.fecha"))         {
         cellValueFactory = c => ObjectProperty(c.value.timestamp.toString)
       },
-      new TableColumn[LedgerEntry, LedgerEntry]("Acciones") {
+      new TableColumn[LedgerEntry, LedgerEntry](I18n("column.acciones")) {
         cellValueFactory = c => ObjectProperty(c.value)
         cellFactory = { _: TableColumn[LedgerEntry, LedgerEntry] =>
           new TableCell[LedgerEntry, LedgerEntry] {
-            val editarBtn   = new Button("Editar")
-            val eliminarBtn = new Button("Eliminar")
+            val editarBtn   = new Button(I18n("button.editar"))
+            val eliminarBtn = new Button(I18n("button.eliminar"))
             contentDisplay = ContentDisplay.GraphicOnly
             graphic = new HBox(5, editarBtn, eliminarBtn)
 
