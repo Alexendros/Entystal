@@ -15,6 +15,7 @@ import scalafx.scene.Scene
 import scalafx.collections.ObservableBuffer
 import scalafx.beans.property.ObjectProperty
 import scalafx.Includes._
+import scalafx.application.Platform
 import entystal.ledger.{AssetEntry, InvestmentEntry, Ledger, LedgerEntry, LiabilityEntry}
 import entystal.view.EdicionView
 import entystal.i18n.I18n
@@ -96,7 +97,9 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
     val filtrados =
       if (filtro.trim.isEmpty) datos
       else datos.filter(_.id.contains(filtro.trim))
-    tabla.items = ObservableBuffer.from(filtrados)
+    Platform.runLater {
+      tabla.items = ObservableBuffer.from(filtrados)
+    }
   }
 
   cargar()
