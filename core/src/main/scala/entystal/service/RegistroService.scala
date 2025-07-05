@@ -1,59 +1,58 @@
 package entystal.service
 
-import entystal.ledger.{AssetEntry, InvestmentEntry, Ledger, LedgerEntry, LiabilityEntry}
+import entystal.ledger.{Ledger, LedgerEntry, AssetEntry, LiabilityEntry, InvestmentEntry}
 import entystal.model._
-import entystal.util.{CsvExporter, PdfExporter}
 import entystal.viewmodel.RegistroData
-import zio.{Runtime, UIO}
+import entystal.util.{CsvExporter, PdfExporter}
+import zio.UIO
 
-/** Servicio que centraliza las operaciones de registro y exportación del ledger.
-  */
-class RegistroService(private val ledger: Ledger)(implicit runtime: Runtime[Any]) {
+/** Servicio que registra y consulta el ledger */
+class RegistroService(private val ledger: Ledger) {
+  private val runtime = zio.Runtime.default
 
-  def registrarActivo(asset: Asset): UIO[Unit] =
-    ledger.recordAsset(asset)
-
-  def registrarPasivo(liability: Liability): UIO[Unit] =
-    ledger.recordLiability(liability)
-
-  def registrarInversion(investment: Investment): UIO[Unit] =
-    ledger.recordInvestment(investment)
-
-  /** Registra un elemento en función de su tipo.
-    */
-  def registrar(data: RegistroData): Unit = {
+  /** Registra un activo, pasivo o inversión y devuelve un mensaje de confirmación */
+  def registrar(data: RegistroData): String = {
     val ts = System.currentTimeMillis()
     data.tipo match {
       case "activo" =>
         val asset = DataAsset(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u => runtime.unsafe.run(registrarActivo(asset)).getOrThrow() }
+        zio.Unsafe.unsafe { implicit u =>
+          runtime.unsafe.run(ledger.recordAsset(asset)).getOrThrow()
+        }
       case "pasivo" =>
         val liab = EthicalLiability(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u => runtime.unsafe.run(registrarPasivo(liab)).getOrThrow() }
+        zio.Unsafe.unsafe { implicit u =>
+          runtime.unsafe.run(ledger.recordLiability(liab)).getOrThrow()
+        }
       case _        =>
         val qty = BigDecimal(data.descripcion)
         val inv = BasicInvestment(data.identificador, qty, ts)
-        zio.Unsafe.unsafe { implicit u => runtime.unsafe.run(registrarInversion(inv)).getOrThrow() }
+        zio.Unsafe.unsafe { implicit u =>
+          runtime.unsafe.run(ledger.recordInvestment(inv)).getOrThrow()
+        }
     }
+    "Registro completado"
   }
 
-  /** Obtiene todo el historial almacenado. */
+  /** Obtiene todo el historial registrado */
+
   def history: List[LedgerEntry] =
     zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ledger.getHistory).getOrThrow()
     }
 
-  /** Calcula los totales por tipo de registro. */
+  /** Suma los totales agregados de activos, pasivos e inversiones */
   def aggregateTotals(): UIO[(BigDecimal, BigDecimal, BigDecimal)] =
     ledger.getHistory.map { entries =>
       entries.foldLeft((BigDecimal(0), BigDecimal(0), BigDecimal(0))) {
-        case ((a, l, i), AssetEntry(asset))    => (a + asset.value, l, i)
-        case ((a, l, i), LiabilityEntry(liab)) => (a, l + liab.amount, i)
-        case ((a, l, i), InvestmentEntry(inv)) => (a, l, i + inv.quantity)
+        case ((aAcc, lAcc, iAcc), AssetEntry(a))        => (aAcc + a.value, lAcc, iAcc)
+        case ((aAcc, lAcc, iAcc), LiabilityEntry(l))    => (aAcc, lAcc + l.amount, iAcc)
+        case ((aAcc, lAcc, iAcc), InvestmentEntry(inv)) => (aAcc, lAcc, iAcc + inv.quantity)
       }
     }
 
-  /** Exporta el historial completo a CSV. */
+  /** Exporta el historial completo a CSV y devuelve la ruta */
+
   def exportCsv(path: String): String = {
     val entries = history
     zio.Unsafe.unsafe { implicit u =>
@@ -62,7 +61,8 @@ class RegistroService(private val ledger: Ledger)(implicit runtime: Runtime[Any]
     s"CSV exportado en $path"
   }
 
-  /** Exporta el historial completo a PDF. */
+  /** Exporta el historial completo a PDF y devuelve la ruta */
+
   def exportPdf(path: String): String = {
     val entries = history
     zio.Unsafe.unsafe { implicit u =>
