@@ -13,7 +13,6 @@ class RegistroService(private val ledger: Ledger) {
     ledger.recordAsset(asset)
   def registrarPasivo(liability: Liability): UIO[Unit] =
     ledger.recordLiability(liability)
-
   def registrarInversion(investment: Investment): UIO[Unit] =
     ledger.recordInvestment(investment)
 
