@@ -103,6 +103,15 @@ sbt test
 Si la base de datos no est\u00e1 disponible en `localhost:5432` las pruebas se marcan como
 **ignoradas**.
 
+## Cobertura de código
+
+Genera el informe de cobertura con:
+```bash
+sbt coverage test coverageAggregate
+```
+El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
+
+
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).

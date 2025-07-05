@@ -3,14 +3,14 @@ package entystal.viewmodel
 import scalafx.beans.property.StringProperty
 import scalafx.beans.binding.{BooleanBinding, Bindings}
 import entystal.model._
-import entystal.service.RegistroService
-import entystal.i18n.I18n
+import entystal.service.{RegistroService, Notifier}
+import zio.Runtime
 
 /** ViewModel para el formulario de registro */
 class RegistroViewModel(
     service: RegistroService,
-    validator: RegistroValidator,
-    notifier: Notifier
+    notifier: Notifier,
+    validator: RegistroValidator = new RegistroValidator
 )(implicit runtime: Runtime[Any]) {
 
   val tipo          = StringProperty("activo")
