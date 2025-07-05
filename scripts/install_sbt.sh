@@ -21,8 +21,15 @@ fi
 VERSION=${SBT_VERSION:-1.9.9}
 TMP=$(mktemp -d)
 URL="https://github.com/sbt/sbt/releases/download/v${VERSION}/sbt-${VERSION}.tgz"
+SHA_URL="${URL}.sha256"
 echo "Descargando sbt ${VERSION} desde GitHub" >&2
 curl -L "$URL" -o "$TMP/sbt.tgz"
+OFFICIAL_SHA=$(curl -L "$SHA_URL" | cut -d ' ' -f1)
+LOCAL_SHA=$(sha256sum "$TMP/sbt.tgz" | cut -d ' ' -f1)
+if [ "$OFFICIAL_SHA" != "$LOCAL_SHA" ]; then
+  echo "La suma SHA256 no coincide. Descarga corrupta." >&2
+  exit 1
+fi
 tar -xzf "$TMP/sbt.tgz" -C "$TMP"
 
 if [ "$(id -u)" -eq 0 ]; then
