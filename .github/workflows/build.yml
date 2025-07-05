@@ -13,8 +13,8 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: ${{ secrets.PGUSER }}
+          POSTGRES_PASSWORD: ${{ secrets.PGPASSWORD }}
           POSTGRES_DB: entystal
         ports: ["5432:5432"]
         options: >-
@@ -40,20 +40,20 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Inicializar base de datos
         env:
-          PGUSER: postgres
-          PGPASSWORD: password
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
         run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
       - name: Formateo y análisis estático
         env:
-          PGUSER: postgres
-          PGPASSWORD: password
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
         run: |
           sbt scalafmtCheckAll > scalafmt.log
           sbt "scalafixAll --check" > scalafix.log
       - name: Pruebas y cobertura
         env:
-          PGUSER: postgres
-          PGPASSWORD: password
+          PGUSER: ${{ secrets.PGUSER }}
+          PGPASSWORD: ${{ secrets.PGPASSWORD }}
         run: |
           sbt coverage test coverageReport
           sbt coverageAggregate
