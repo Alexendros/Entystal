@@ -13,12 +13,22 @@ El código principal se encuentra en la carpeta `core/` y está organizado en m�
 - Interfaz gráfica (GUI) básica con ScalaFX para registrar activos, pasivos e inversiones.
 - Generación de JAR ejecutable mediante `sbt-assembly`.
 - Nuevo módulo `rest` con API HTTP para registrar eventos y consultar historial.
+- Nuevo módulo `gateway` con Akka HTTP que aplica rate limiting y SSO/SAML, y enruta al `RestServer`.
 
 ## Accesibilidad
 
 La GUI ahora define texto accesible (`accessibleText`) en cada botón y campo,
 atajos de teclado mediante `mnemonicParsing` para las acciones principales y un
 orden de tabulación lógico para navegar sólo con el teclado.
+
+## Arquitectura
+
+```
+[Usuarios] -> gateway (Akka HTTP + SAML) -> RestServer (http4s) -> core
+```
+
+El `gateway` autentica via SAML, limita la tasa por IP y delega las peticiones
+al `RestServer`, que a su vez expone la lógica definida en `core`.
 
 ## Requisitos
 
