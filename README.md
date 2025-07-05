@@ -113,6 +113,15 @@ sbt coverage test coverageAggregate
 El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
 
 
+## Traducciones
+
+Las cadenas de texto de la GUI se almacenan en `core/src/main/resources/i18n`.
+Para añadir un nuevo idioma crea un archivo `messages_<código>.properties` con
+las claves existentes traducidas. Luego invoca `I18n.setLocale` con el locale
+correspondiente (por ejemplo `Locale.FRENCH`). Los idiomas soportados se
+definen en `I18n.supportedLocales`.
+
+
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -92,4 +92,25 @@ class RegistroServiceSpec extends AnyFlatSpec with Matchers {
     assert(tmpPdf.toFile.exists())
     tmpPdf.toFile.delete()
   }
+
+  "actualizar y eliminar" should "modificar el ledger" in {
+    val runtime     = zio.Runtime.default
+    val ledger      = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
+    }
+    val service     = new RegistroService(ledger)
+    zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(service.registrar(RegistroData("activo", "a1", "desc"))).getOrThrow()
+      runtime.unsafe.run(service.actualizar("a1", "nuevo")).getOrThrow()
+    }
+    val afterUpdate = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
+    }
+    afterUpdate.collectFirst { case AssetEntry(a: DataAsset) => a.data }.get shouldBe "nuevo"
+    zio.Unsafe.unsafe { implicit u => runtime.unsafe.run(service.eliminar("a1")).getOrThrow() }
+    val afterDelete = zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(ledger.getHistory).getOrThrow()
+    }
+    afterDelete.exists(_.id == "a1") shouldBe false
+  }
 }

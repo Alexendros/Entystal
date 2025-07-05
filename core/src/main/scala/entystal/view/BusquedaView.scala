@@ -2,10 +2,13 @@ package entystal.view
 
 import scalafx.scene.control.{Button, ContentDisplay, TableCell, TableColumn, TableView, TextField}
 import scalafx.scene.layout.{HBox, VBox}
+import scalafx.stage.Stage
+import scalafx.scene.Scene
 import scalafx.collections.ObservableBuffer
 import scalafx.beans.property.ObjectProperty
 import scalafx.Includes._
 import entystal.ledger.{AssetEntry, InvestmentEntry, Ledger, LedgerEntry, LiabilityEntry}
+import entystal.view.EdicionView
 import zio.Runtime
 
 /** Muestra el historial con campo de búsqueda */
@@ -18,7 +21,7 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
     onAction = _ => cargar(buscarField.text.value)
   }
 
-  private val tabla = new TableView[LedgerEntry]() {
+  val tabla = new TableView[LedgerEntry]() {
     columnResizePolicy = TableView.ConstrainedResizePolicy
     columns ++= Seq(
       new TableColumn[LedgerEntry, String]("ID")            {
@@ -41,17 +44,42 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
           new TableCell[LedgerEntry, LedgerEntry] {
             val editarBtn   = new Button("Editar")
             val eliminarBtn = new Button("Eliminar")
-            editarBtn.onAction = _ => println(s"Editar ${item.value.id}")
-            eliminarBtn.onAction = _ => println(s"Eliminar ${item.value.id}")
             contentDisplay = ContentDisplay.GraphicOnly
             graphic = new HBox(5, editarBtn, eliminarBtn)
+
+            editarBtn.onAction = _ => {
+              val entry = item()
+              if (entry != null) {
+                val view  = new EdicionView(entry)
+                val stage = new Stage { scene = new Scene(view.root) }
+                view.guardarBtn.onAction = _ => {
+                  val nuevo = view.campo.text.value
+                  zio.Unsafe.unsafe { implicit u =>
+                    runtime.unsafe.run(ledger.updateEntry(entry.id, nuevo)).getOrThrow()
+                  }
+                  stage.close()
+                  cargar()
+                }
+                stage.showAndWait()
+              }
+            }
+
+            eliminarBtn.onAction = _ => {
+              val entry = item()
+              if (entry != null) {
+                zio.Unsafe.unsafe { implicit u =>
+                  runtime.unsafe.run(ledger.deleteEntry(entry.id)).getOrThrow()
+                }
+                cargar()
+              }
+            }
           }
         }
       }
     )
   }
 
-  private def cargar(filtro: String = ""): Unit = {
+  def cargar(filtro: String = ""): Unit = {
     val datos     = zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(ledger.getHistory).getOrThrow()
     }

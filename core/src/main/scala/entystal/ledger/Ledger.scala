@@ -1,6 +1,7 @@
 package entystal.ledger
 
 import entystal.model.{Asset, Investment, Liability}
+import entystal.model.{DataAsset, EthicalLiability, BasicInvestment}
 import zio.{Ref, UIO, ULayer, ZLayer}
 
 /** Registro funcional en memoria de eventos contables */
@@ -9,6 +10,8 @@ trait Ledger {
   def recordLiability(liability: Liability): UIO[Unit]
   def recordInvestment(investment: Investment): UIO[Unit]
   def getHistory: UIO[List[LedgerEntry]]
+  def updateEntry(id: String, value: String): UIO[Unit]
+  def deleteEntry(id: String): UIO[Unit]
 }
 
 sealed trait LedgerEntry {
@@ -44,6 +47,20 @@ object InMemoryLedger {
         override def recordInvestment(investment: Investment): UIO[Unit] =
           ref.update(_ :+ InvestmentEntry(investment))
         override def getHistory: UIO[List[LedgerEntry]]                  = ref.get
+
+        override def updateEntry(id: String, value: String): UIO[Unit] =
+          ref.update(_.map {
+            case AssetEntry(a: DataAsset) if a.id == id            =>
+              AssetEntry(a.copy(data = value))
+            case LiabilityEntry(l: EthicalLiability) if l.id == id =>
+              LiabilityEntry(l.copy(description = value))
+            case InvestmentEntry(i: BasicInvestment) if i.id == id =>
+              InvestmentEntry(i.copy(quantity = BigDecimal(value)))
+            case other                                             => other
+          })
+
+        override def deleteEntry(id: String): UIO[Unit] =
+          ref.update(_.filterNot(_.id == id))
       }
     }
 }

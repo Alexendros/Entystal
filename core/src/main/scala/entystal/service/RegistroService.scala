@@ -40,6 +40,12 @@ class RegistroService(private val ledger: Ledger) {
       case _           => zio.ZIO.unit
     }
 
+  def actualizar(id: String, valor: String): UIO[Unit] =
+    ledger.updateEntry(id, valor)
+
+  def eliminar(id: String): UIO[Unit] =
+    ledger.deleteEntry(id)
+
   /** Suma los totales de activos, pasivos e inversiones */
   def aggregateTotals(): UIO[(BigDecimal, BigDecimal, BigDecimal)] =
     ledger.getHistory.map { history =>

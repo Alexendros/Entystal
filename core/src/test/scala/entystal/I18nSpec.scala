@@ -16,6 +16,13 @@ object I18nSpec extends ZIOSpecDefault {
       test("carga recursos en inglés") {
         val rb = ResourceBundle.getBundle("i18n/messages", Locale.forLanguageTag("en"))
         assertTrue(rb.getString("button.registrar") == "Register")
+      },
+      test("carga recursos en francés") {
+        val rb = ResourceBundle.getBundle("i18n/messages", Locale.FRENCH)
+        assertTrue(rb.getString("button.registrar") == "Enregistrer")
+      },
+      test("I18n soporta francés") {
+        assertTrue(I18n.supportedLocales.contains(Locale.FRENCH))
       }
     )
 }
