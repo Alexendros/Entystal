@@ -18,7 +18,7 @@ import sbtassembly.AssemblyPlugin.autoImport._
 import sbtassembly.MergeStrategy
 
 lazy val root = (project in file("."))
-  .aggregate(core, rest)
+  .aggregate(core, analytics, rest)
   .settings(
     name := "entystal-root"
   )
@@ -67,8 +67,18 @@ lazy val core = (project in file("core"))
       coverageHighlighting := true
     )
 
-lazy val rest = (project in file("rest"))
+lazy val analytics = (project in file("analytics"))
   .dependsOn(core)
+  .settings(
+    name := "entystal-analytics",
+    libraryDependencies ++= Seq(
+      "org.apache.spark" %% "spark-mllib-local" % "3.5.0",
+      "org.scalatest" %% "scalatest" % "3.2.18" % Test
+    )
+  )
+
+lazy val rest = (project in file("rest"))
+  .dependsOn(core, analytics)
   .settings(
     name := "entystal-rest",
     libraryDependencies ++= Seq(

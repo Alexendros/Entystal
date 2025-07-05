@@ -9,12 +9,13 @@ import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
 import io.circe.generic.auto._
 import entystal.service.RegistroService
+import entystal.analytics.{TrendPredictor, PredictionResult}
 import entystal.viewmodel.RegistroData
 import entystal.InputValidators
 import entystal.ledger._
 import zio.{Runtime, Unsafe}
 
-class RestRoutes(service: RegistroService)(implicit runtime: Runtime[Any]) {
+class RestRoutes(service: RegistroService, predictor: TrendPredictor)(implicit runtime: Runtime[Any]) {
 
   implicit val registroDecoder: EntityDecoder[IO, RegistroData]        = jsonOf[IO, RegistroData]
   implicit val ledgerEntryEncoder: Encoder[LedgerEntry]                = Encoder.instance {
@@ -39,6 +40,8 @@ class RestRoutes(service: RegistroService)(implicit runtime: Runtime[Any]) {
   }
   implicit val ledgerListEncoder: EntityEncoder[IO, List[LedgerEntry]] =
     jsonEncoderOf[IO, List[LedgerEntry]]
+  implicit val predictionEncoder: EntityEncoder[IO, PredictionResult] =
+    jsonEncoderOf[IO, PredictionResult]
 
   val routes: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ POST -> Root / "registro" =>
@@ -64,6 +67,15 @@ class RestRoutes(service: RegistroService)(implicit runtime: Runtime[Any]) {
                 })
         _    <- Metrics.record()
         resp <- Ok(hist.asJson)
+      } yield resp
+
+    case GET -> Root / "predicciones" =>
+      for {
+        pred <- IO.blocking(Unsafe.unsafe { implicit u =>
+                  runtime.unsafe.run(predictor.predict).getOrThrow()
+                })
+        _    <- Metrics.record()
+        resp <- Ok(pred.asJson)
       } yield resp
   }
 }
