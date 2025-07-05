@@ -46,7 +46,10 @@ class RegistroViewModel(
     }
 
     val data = RegistroData(tipo.value, identificador.value, descripcion.value)
-    service.registrar(data)
+    zio.Unsafe.unsafe { implicit u =>
+      runtime.unsafe.run(service.registrar(data)).getOrThrow()
+    }
+    notifier.success("Registro completado")
   }
 
   /** Exporta el historial a CSV y devuelve mensaje de confirmación */
