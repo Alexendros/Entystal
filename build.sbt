@@ -18,7 +18,7 @@ import sbtassembly.AssemblyPlugin.autoImport._
 import sbtassembly.MergeStrategy
 
 lazy val root = (project in file("."))
-  .aggregate(core, rest)
+  .aggregate(core, rest, audit)
   .settings(
     name := "entystal-root"
   )
@@ -66,6 +66,17 @@ lazy val core = (project in file("core"))
       coverageFailOnMinimum := false,
       coverageHighlighting := true
     )
+
+lazy val audit = (project in file("audit"))
+  .dependsOn(core)
+  .settings(
+    name := "entystal-audit",
+    libraryDependencies ++= Seq(
+      "dev.zio" %% "zio" % "2.0.15",
+      "dev.zio" %% "zio-test" % "2.0.15" % Test,
+      "dev.zio" %% "zio-test-sbt" % "2.0.15" % Test
+    )
+  )
 
 lazy val rest = (project in file("rest"))
   .dependsOn(core)
