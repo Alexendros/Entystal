@@ -6,7 +6,16 @@
 
 .button {
   -fx-background-color: #4285f4;
-  -fx-text-fill: white;
+  -fx-text-fill: #ffffff;
+}
+
+.status-bar {
+  -fx-background-color: #e0e0e0;
+  -fx-padding: 4;
+}
+
+.status-bar .label {
+  -fx-text-fill: #000000;
 }
 
 .text-field, .choice-box {

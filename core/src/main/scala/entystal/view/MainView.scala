@@ -2,19 +2,18 @@ package entystal.view
 
 import scalafx.scene.Scene
 import scalafx.scene.control.{
-  Alert,
   Button,
   ChoiceBox,
   Label,
-  Menu,
-  MenuBar,
-  MenuItem,
   Tab,
   TabPane,
   TextField,
-  Tooltip
+  MenuBar,
+  Menu,
+  MenuItem
 }
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
@@ -22,12 +21,19 @@ import entystal.viewmodel.RegistroViewModel
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
 import entystal.ledger.Ledger
+import entystal.i18n.I18n
+import entystal.service.StatusNotifier
 import zio.Runtime
 import java.util.Locale
 
 /** Vista principal con pestañas de registro y búsqueda */
 
-class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
+class MainView(
+    vm: RegistroViewModel,
+    ledger: Ledger,
+    statusLabel: Label,
+    notifier: StatusNotifier
+)(implicit runtime: Runtime[Any]) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
@@ -51,9 +57,22 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     onAction = _ => toggleTheme()
   }
 
-  private val acercaItem = new MenuItem() { onAction = _ => mostrarAcerca() }
-  private val ayudaMenu  = new Menu() { items = Seq(acercaItem) }
-  private val menuBar    = new MenuBar { menus = Seq(ayudaMenu) }
+  private val exportCsvItem = new MenuItem()
+  private val exportPdfItem = new MenuItem()
+  private val exitItem      = new MenuItem()
+  private val languageMenu  = new Menu()
+  private val menuBar       = new MenuBar {
+    menus = Seq(
+      new Menu("Archivo") {
+        items = Seq(exportCsvItem, exportPdfItem, exitItem)
+      },
+      languageMenu
+    )
+  }
+
+  private val statusBar = new VBox(statusLabel) {
+    styleClass += "status-bar"
+  }
 
   tipoChoice.value.onChange { (_, _, _) => updateTexts() }
   langChoice.value.onChange { (_, _, nv) =>
@@ -69,19 +88,25 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     idField.promptText = I18n("prompt.id")
     descField.promptText = I18n("prompt.desc")
     registrarBtn.text = I18n("button.registrar")
-    themeBtn.text = I18n("button.cambiarTema")
+    exportCsvItem.text = I18n("menu.exportCsv")
+    exportPdfItem.text = I18n("menu.exportPdf")
+    exitItem.text = I18n("menu.exit")
+    languageMenu.text = I18n("menu.language")
   }
 
   I18n.register(() => updateTexts())
   updateTexts()
 
-  private def toggleTheme(): Unit = {
-    val current = ThemeManager.loadTheme()
-    val next    = current match {
-      case ThemeManager.Light => ThemeManager.Dark
-      case ThemeManager.Dark  => ThemeManager.Light
+  statusLabel.text = I18n("status.ready")
+
+  exportCsvItem.onAction = _ => notifier.success(vm.exportCsv())
+  exportPdfItem.onAction = _ => notifier.success(vm.exportPdf())
+  exitItem.onAction = _ => Platform.exit()
+
+  languageMenu.items = I18n.supportedLocales.map { loc =>
+    new MenuItem(loc.getLanguage) {
+      onAction = _ => I18n.setLocale(loc)
     }
-    ThemeManager.applyTheme(scene, next)
   }
 
   private val registroPane = new VBox(10) {
@@ -114,8 +139,14 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     )
   }
 
+  private val rootPane = new BorderPane {
+    top = menuBar
+    center = tabPane
+    bottom = statusBar
+  }
+
   val scene = new Scene(600, 400) {
-    root = new VBox(menuBar, tabPane)
+    root = rootPane
     stylesheets += ThemeManager.loadTheme().css
   }
 

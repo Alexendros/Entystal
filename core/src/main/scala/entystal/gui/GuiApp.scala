@@ -5,7 +5,8 @@ import scalafx.stage.Stage
 import entystal.{EntystalModule}
 import entystal.ledger.Ledger
 import entystal.viewmodel.{RegistroViewModel, RegistroValidator}
-import entystal.service.{RegistroService, DialogNotifier}
+import entystal.service.{RegistroService, StatusNotifier}
+import scalafx.scene.control.Label
 import entystal.view.MainView
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
@@ -22,8 +23,10 @@ object GuiApp extends JFXApp3 {
     }
     val service                        = new RegistroService(ledger)
     val validator                      = new RegistroValidator
-    val vm                             = new RegistroViewModel(service, DialogNotifier, validator)
-    val view                           = new MainView(vm, ledger)
+    val statusLabel                    = new scalafx.scene.control.Label()
+    val notifier                       = new StatusNotifier(statusLabel)
+    val vm                             = new RegistroViewModel(service, notifier, validator)
+    val view                           = new MainView(vm, ledger, statusLabel, notifier)
 
     stage = new JFXApp3.PrimaryStage {
       title = I18n("app.title")
