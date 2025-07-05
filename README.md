@@ -89,11 +89,19 @@ Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_sche
 
 ## Pruebas de integración
 
-Las pruebas que usan `SqlLedger` necesitan las variables `PGUSER` y `PGPASSWORD` configuradas. Se ejecutan automáticamente con:
+Las pruebas que usan `SqlLedger` necesitan las variables de entorno `PGUSER` (usuario) y
+`PGPASSWORD` (contrase\u00f1a) para conectar con PostgreSQL. Define dichos valores antes de
+ejecutar las pruebas:
+```bash
+export PGUSER=tu_usuario
+export PGPASSWORD=tu_contrase\u00f1a
+```
+Despu\u00e9s lanza las pruebas con:
 ```bash
 sbt test
 ```
-Si la base de datos no está disponible en `localhost:5432` las pruebas se marcan como **ignoradas**.
+Si la base de datos no est\u00e1 disponible en `localhost:5432` las pruebas se marcan como
+**ignoradas**.
 
 ## Cobertura de código
 
@@ -106,3 +114,20 @@ El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
 ## Contribución
 
 Para detalles sobre cómo enviar cambios sin conflictos revisa [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Windows y macOS
+
+Tras instalar Java y sbt, los comandos de este README funcionan igual en ambos sistemas.
+Puedes ejecutar la aplicación con:
+
+```bash
+sbt run
+```
+
+o lanzar la GUI directamente:
+
+```bash
+sbt "core/runMain entystal.gui.GuiApp"
+```
+
+Gracias a la variable `javafxPlatform` definida en `build.sbt` las librerías de OpenJFX se seleccionan automáticamente para tu sistema operativo.

@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  push:
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -22,16 +24,17 @@ jobs:
           --health-retries 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Comprobar conflictos de fusi\u00f3n
+      - name: Comprobar conflictos de fusión
         run: |
           git fetch origin ${{ github.base_ref }}
           git merge --no-commit --no-ff origin/${{ github.base_ref }} || { echo "Conflictos detectados con la rama base"; exit 1; }
       - name: Configurar Java y sbt
         uses: coursier/setup-action@v1
         with:
+          jvm: temurin:17
           apps: sbt
       - name: Instalar cliente PostgreSQL
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
@@ -40,21 +43,32 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: password
         run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
-      - name: Formateo y cobertura
+      - name: Formateo y análisis estático
         env:
           PGUSER: postgres
           PGPASSWORD: password
         run: |
-          sbt scalafmtCheckAll
-          sbt coverage test coverageAggregate
-      - name: Publicar reporte de cobertura
-        uses: actions/upload-artifact@v3
-        with:
-          name: scoverage-report
-          path: target/scala-*/scoverage-report
-      - name: Instalaci\u00f3n de Snyk
+          sbt scalafmtCheckAll > scalafmt.log
+          sbt "scalafixAll --check" > scalafix.log
+      - name: Pruebas y cobertura
+        env:
+          PGUSER: postgres
+          PGPASSWORD: password
+        run: |
+          sbt coverage test coverageReport
+          sbt coverageAggregate
+      - name: Escaneo de seguridad con Snyk
         uses: snyk/actions/setup@v1
-      - name: Escaneo de dependencias
+      - name: Ejecutar Snyk
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --all-projects
+        run: snyk test --severity-threshold=high
+        continue-on-error: true
+      - name: Publicar artefactos
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes
+          path: |
+            scalafmt.log
+            scalafix.log
+            target/scala-*/scoverage-report

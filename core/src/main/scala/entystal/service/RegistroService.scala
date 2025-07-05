@@ -1,4 +1,5 @@
 package entystal.service
+
 import entystal.ledger.Ledger
 import entystal.model.{Asset, Investment, Liability}
 import zio.UIO
