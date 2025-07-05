@@ -12,8 +12,11 @@ class RegistroService(private val ledger: Ledger) {
   def registrarActivo(asset: Asset): UIO[Unit] =
     ledger.recordAsset(asset)
 
+  def registrarPasivo(liability: Liability): UIO[Unit] =
+    ledger.recordLiability(liability)
+
   /** Registra un activo, pasivo o inversión y devuelve un mensaje de confirmación */
-  def registrar(data: RegistroData): String = {
+  def registrarSync(data: RegistroData): String = {
     val ts = System.currentTimeMillis()
     data.tipo match {
       case "activo" =>
