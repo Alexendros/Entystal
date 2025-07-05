@@ -21,8 +21,9 @@ import zio.Runtime
 
 /** Muestra el historial con campo de búsqueda */
 class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
-  private val buscarField = new TextField() {
+  val buscarField = new TextField() {
     promptText = "ID..."
+    accessibleText = "Buscar por ID"
   }
 
   private val buscarTooltip = new Tooltip("Buscar por ID")

@@ -43,6 +43,7 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
   private val registrarTooltip = new Tooltip()
   private val registrarBtn     = new Button() {
     disable <== vm.puedeRegistrar.not()
+    mnemonicParsing = true
     onAction = _ => vm.registrar()
     tooltip = registrarTooltip
   }
