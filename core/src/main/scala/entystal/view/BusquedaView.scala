@@ -1,6 +1,14 @@
 package entystal.view
 
-import scalafx.scene.control.{Button, ContentDisplay, TableCell, TableColumn, TableView, TextField}
+import scalafx.scene.control.{
+  Button,
+  ContentDisplay,
+  TableCell,
+  TableColumn,
+  TableView,
+  TextField,
+  Tooltip
+}
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.stage.Stage
 import scalafx.scene.Scene
@@ -18,10 +26,10 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
     accessibleText = "Buscar por ID"
   }
 
-  val buscarBtn = new Button("_Buscar") {
-    mnemonicParsing = true
-    accessibleText = "Buscar"
+  private val buscarTooltip = new Tooltip("Buscar por ID")
+  private val buscarBtn     = new Button("Buscar") {
     onAction = _ => cargar(buscarField.text.value)
+    tooltip = buscarTooltip
   }
 
   val tabla = new TableView[LedgerEntry]() {
@@ -45,14 +53,12 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
         cellValueFactory = c => ObjectProperty(c.value)
         cellFactory = { _: TableColumn[LedgerEntry, LedgerEntry] =>
           new TableCell[LedgerEntry, LedgerEntry] {
-            val editarBtn = new Button("_Editar") {
-              mnemonicParsing = true
-              accessibleText = "Editar registro"
-            }
-            val eliminarBtn = new Button("_Eliminar") {
-              mnemonicParsing = true
-              accessibleText = "Eliminar registro"
-            }
+            val editarTooltip   = new Tooltip("Editar registro")
+            val eliminarTooltip = new Tooltip("Eliminar registro")
+            val editarBtn       = new Button("Editar")
+            val eliminarBtn     = new Button("Eliminar")
+            editarBtn.tooltip = editarTooltip
+            eliminarBtn.tooltip = eliminarTooltip
             contentDisplay = ContentDisplay.GraphicOnly
             graphic = new HBox(5, editarBtn, eliminarBtn)
 

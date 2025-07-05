@@ -5,7 +5,7 @@ import java.util.{Locale, ResourceBundle}
 
 /** Utilidad sencilla para manejar traducciones mediante ResourceBundle */
 object I18n {
-  val supportedLocales: Seq[Locale] = Seq(
+  val supportedLocales: Seq[Locale]  = Seq(
     Locale.forLanguageTag("es"),
     Locale.ENGLISH,
     Locale.FRENCH
