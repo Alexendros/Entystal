@@ -5,6 +5,11 @@ import java.util.{Locale, ResourceBundle}
 
 /** Utilidad sencilla para manejar traducciones mediante ResourceBundle */
 object I18n {
+  val supportedLocales: Seq[Locale] = Seq(
+    Locale.forLanguageTag("es"),
+    Locale.ENGLISH,
+    Locale.FRENCH
+  )
   val locale: ObjectProperty[Locale] = ObjectProperty(Locale.getDefault)
 
   private var bundle: ResourceBundle =
@@ -24,8 +29,11 @@ object I18n {
 
   /** Cambia el locale activo y notifica a las vistas */
   def setLocale(loc: Locale): Unit = {
-    locale.value = loc
-    bundle = ResourceBundle.getBundle("i18n/messages", loc)
+    val selected =
+      if (supportedLocales.contains(loc)) loc
+      else Locale.ENGLISH
+    locale.value = selected
+    bundle = ResourceBundle.getBundle("i18n/messages", selected)
     listeners.foreach(_())
   }
 
