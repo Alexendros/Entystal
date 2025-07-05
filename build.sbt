@@ -1,6 +1,9 @@
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / organization := "io.entystal"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / coverageMinimumStmtTotal := 80
+ThisBuild / coverageFailOnMinimum := true
+ThisBuild / coverageExcludedPackages := ".*"
 
 val javafxVersion = "21.0.1"
 

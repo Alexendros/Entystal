@@ -40,10 +40,21 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: password
         run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
-      - name: Formateo y pruebas
+      - name: Formateo y cobertura
         env:
           PGUSER: postgres
           PGPASSWORD: password
         run: |
           sbt scalafmtCheckAll
-          sbt test
+          sbt coverage test coverageAggregate
+      - name: Publicar reporte de cobertura
+        uses: actions/upload-artifact@v3
+        with:
+          name: scoverage-report
+          path: target/scala-*/scoverage-report
+      - name: Instalaci\u00f3n de Snyk
+        uses: snyk/actions/setup@v1
+      - name: Escaneo de dependencias
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --all-projects

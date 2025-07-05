@@ -10,13 +10,13 @@ class CsvExporterSpec extends AnyFlatSpec with Matchers {
   "CsvExporter" should "generar un fichero con cabecera" in {
     val entries = List(AssetEntry(DataAsset("a1", "info", 1L, BigDecimal(1))))
     val tmp     = java.nio.file.Files.createTempFile("hist", ".csv")
-    val rt = Runtime.default
+    val rt      = Runtime.default
     zio.Unsafe.unsafe { implicit u =>
       rt.unsafe
         .run(CsvExporter.save(entries, tmp.toString))
         .getOrThrow()
     }
-    val lines = scala.io.Source.fromFile(tmp.toFile).getLines().toList
+    val lines   = scala.io.Source.fromFile(tmp.toFile).getLines().toList
     lines.head shouldBe "type,id,description,timestamp"
     tmp.toFile.delete()
   }
