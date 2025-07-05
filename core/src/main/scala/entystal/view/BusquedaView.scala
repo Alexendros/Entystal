@@ -13,11 +13,14 @@ import zio.Runtime
 
 /** Muestra el historial con campo de búsqueda */
 class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
-  private val buscarField = new TextField() {
+  val buscarField = new TextField() {
     promptText = "ID..."
+    accessibleText = "Buscar por ID"
   }
 
-  private val buscarBtn = new Button("Buscar") {
+  val buscarBtn = new Button("_Buscar") {
+    mnemonicParsing = true
+    accessibleText = "Buscar"
     onAction = _ => cargar(buscarField.text.value)
   }
 
@@ -42,8 +45,14 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
         cellValueFactory = c => ObjectProperty(c.value)
         cellFactory = { _: TableColumn[LedgerEntry, LedgerEntry] =>
           new TableCell[LedgerEntry, LedgerEntry] {
-            val editarBtn   = new Button("Editar")
-            val eliminarBtn = new Button("Eliminar")
+            val editarBtn = new Button("_Editar") {
+              mnemonicParsing = true
+              accessibleText = "Editar registro"
+            }
+            val eliminarBtn = new Button("_Eliminar") {
+              mnemonicParsing = true
+              accessibleText = "Eliminar registro"
+            }
             contentDisplay = ContentDisplay.GraphicOnly
             graphic = new HBox(5, editarBtn, eliminarBtn)
 

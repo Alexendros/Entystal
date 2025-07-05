@@ -27,10 +27,11 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     new ChoiceBox[String](ObservableBuffer("activo", "pasivo", "inversion")) {
       value <==> vm.tipo
     }
-  private val idField          = new TextField() { text <==> vm.identificador }
-  private val descField        = new TextField() { text <==> vm.descripcion }
-  private val registrarBtn     = new Button() {
+  val idField   = new TextField() { text <==> vm.identificador }
+  val descField = new TextField() { text <==> vm.descripcion }
+  val registrarBtn = new Button() {
     disable <== vm.puedeRegistrar.not()
+    mnemonicParsing = true
     onAction = _ => vm.registrar()
   }
 
@@ -47,7 +48,12 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
       else I18n("label.descripcion")
     idField.promptText = I18n("prompt.id")
     descField.promptText = I18n("prompt.desc")
-    registrarBtn.text = I18n("button.registrar")
+    idField.accessibleText = labelId.text.value
+    descField.accessibleText = labelDescripcion.text.value
+    tipoChoice.accessibleText = labelTipo.text.value
+    langChoice.accessibleText = "Idioma"
+    registrarBtn.text = "_" + I18n("button.registrar")
+    registrarBtn.accessibleText = I18n("button.registrar")
   }
 
   I18n.register(() => updateTexts())
