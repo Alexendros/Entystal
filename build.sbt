@@ -3,7 +3,8 @@ ThisBuild / organization := "io.entystal"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / coverageMinimumStmtTotal := 80
 ThisBuild / coverageFailOnMinimum := true
-ThisBuild / coverageExcludedPackages := ".*"
+// Excluimos solo el proyecto raíz de la cobertura
+root / coverageExcludedPackages := ".*"
 
 val javafxVersion = "21.0.1"
 // Clasificador de JavaFX según el sistema operativo actual
