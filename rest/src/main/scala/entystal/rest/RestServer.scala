@@ -9,7 +9,13 @@ import com.comcast.ip4s._
 import entystal.service.RegistroService
 import entystal.EntystalModule
 import entystal.auth.JwtMiddleware
-import entystal.analytics.TrendPredictor
+import io.opentelemetry.api.GlobalOpenTelemetry
+import io.opentelemetry.api.common.{AttributeKey, Attributes}
+import io.opentelemetry.sdk.resources.Resource
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor
+import io.opentelemetry.exporter.jaeger.JaegerGrpcSpanExporter
+import io.opentelemetry.sdk.OpenTelemetrySdk
 import java.io.FileInputStream
 import java.security.{KeyStore, SecureRandom}
 import javax.net.ssl.{KeyManagerFactory, SSLContext, TrustManagerFactory}
@@ -23,8 +29,28 @@ object RestServer extends IOApp.Simple {
       runtime.unsafe.run(zio.ZIO.scoped(EntystalModule.layer.build.map(_.get))).getOrThrow()
     }
     val service                        = new RegistroService(ledger)
-    val predictor                      = new TrendPredictor(ledger)
-    val api                            = JwtMiddleware(new RestRoutes(service, predictor).routes <+> Metrics.routes)
+    // Configuración de OpenTelemetry con exportador Jaeger
+    val jaegerExporter = JaegerGrpcSpanExporter
+      .builder()
+      .setEndpoint(sys.env.getOrElse("JAEGER_GRPC_ENDPOINT", "http://localhost:14250"))
+      .build()
+    val tracerProvider = SdkTracerProvider
+      .builder()
+      .addSpanProcessor(BatchSpanProcessor.builder(jaegerExporter).build())
+      .setResource(
+        Resource.create(
+          Attributes.of(AttributeKey.stringKey("service.name"), "entystal-rest")
+        )
+      )
+      .build()
+    val openTelemetry = OpenTelemetrySdk
+      .builder()
+      .setTracerProvider(tracerProvider)
+      .build()
+    GlobalOpenTelemetry.set(openTelemetry)
+
+    val api =
+      JwtMiddleware(Tracing.middleware(new RestRoutes(service).routes <+> Metrics.routes))
 
     val sslContext = for {
       ksPath <- sys.env.get("HTTPS_KEYSTORE_PATH")

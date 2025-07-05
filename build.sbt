@@ -94,19 +94,10 @@ lazy val rest = (project in file("rest"))
       "dev.zio" %% "zio-json" % "0.6.2",
       "com.auth0" % "java-jwt" % "4.5.0",
       "org.http4s" %% "http4s-blaze-server" % "0.23.17",
-      "com.bettercloud" % "vault-java-driver" % "5.1.0"
+      "io.jaegertracing" % "jaeger-client" % "1.8.1",
+      "io.opentelemetry" % "opentelemetry-api" % "1.32.0",
+      "io.opentelemetry" % "opentelemetry-sdk" % "1.32.0",
+      "io.opentelemetry" % "opentelemetry-exporter-jaeger" % "1.32.0",
+      
+      )
     )
-  )
-
-lazy val gateway = (project in file("gateway"))
-  .dependsOn(rest)
-  .settings(
-    name := "entystal-gateway",
-    libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http" % "10.6.0",
-      "com.typesafe.akka" %% "akka-stream" % "2.8.5",
-      "com.stackstate" %% "akka-http-pac4j" % "1.0.1",
-      "org.pac4j" % "pac4j-saml-opensamlv5" % "5.7.7"
-    ),
-    resolvers += "Shibboleth Releases" at "https://maven.shibboleth.net/releases"
-  )
