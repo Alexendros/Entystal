@@ -26,7 +26,9 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
     promptText = s"${I18n("prompt.id")}" + "..."
   }
 
-  private val buscarBtn = new Button(I18n("button.buscar")) {
+  private val buscarTooltip = new Tooltip()
+
+  val buscarBtn = new Button(I18n("button.buscar")) {
     onAction = _ => cargar(buscarField.text.value)
     tooltip = buscarTooltip
   }

@@ -26,7 +26,7 @@ object GuiApp extends JFXApp3 {
     val statusLabel                    = new scalafx.scene.control.Label()
     val notifier                       = new StatusNotifier(statusLabel)
     val vm                             = new RegistroViewModel(service, notifier, validator)
-    val view                           = new MainView(vm, ledger, statusLabel, notifier)
+    val view                           = new MainView(vm, ledger, statusLabel)
 
     stage = new JFXApp3.PrimaryStage {
       title = I18n("app.title")

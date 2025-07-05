@@ -67,7 +67,8 @@ class RegistroServiceSpec extends AnyFlatSpec with Matchers {
         .getOrThrow()
     }
     val service = new RegistroService(ledger)
-    val tmpCsv  = java.nio.file.Files.createTempFile("reg", ".csv")
+    val tmpCsv  =
+      java.nio.file.Files.createTempFile(entystal.util.CsvExporter.baseDir, "reg", ".csv")
     zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(service.registrar(RegistroData("activo", "a1", "d"))).getOrThrow()
     }
@@ -84,7 +85,8 @@ class RegistroServiceSpec extends AnyFlatSpec with Matchers {
         .getOrThrow()
     }
     val service = new RegistroService(ledger)
-    val tmpPdf  = java.nio.file.Files.createTempFile("reg", ".pdf")
+    val tmpPdf  =
+      java.nio.file.Files.createTempFile(entystal.util.PdfExporter.baseDir, "reg", ".pdf")
     zio.Unsafe.unsafe { implicit u =>
       runtime.unsafe.run(service.registrar(RegistroData("pasivo", "p1", ""))).getOrThrow()
     }
