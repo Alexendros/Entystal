@@ -1,0 +1,62 @@
+name: CI Basica
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: entystal
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U $POSTGRES_USER"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar Java y sbt
+        uses: coursier/setup-action@v1
+        with:
+          jvm: temurin:17
+          apps: sbt
+      - name: Instalar cliente PostgreSQL
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Inicializar base de datos
+        env:
+          PGUSER: postgres
+          PGPASSWORD: password
+        run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
+      - name: Formateo y análisis estático
+        run: |
+          sbt scalafmtCheckAll
+          sbt "scalafixAll --check"
+      - name: Pruebas y cobertura
+        env:
+          PGUSER: postgres
+          PGPASSWORD: password
+        run: |
+          sbt coverage test
+          sbt coverageAggregate
+      - name: Escaneo de seguridad con Snyk
+        uses: snyk/actions/setup@v1
+      - name: Ejecutar Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk test --severity-threshold=high
+        continue-on-error: true
+      - name: Publicar reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: target/scala-*/scoverage-report
