@@ -2,6 +2,8 @@
 
 Sistema funcional en Scala para trazabilidad ética y registro auditable de activos, pasivos e inversiones.
 
+Consulta el [roadmap](docs/roadmap.md) para conocer las próximas fases del proyecto.
+
 ## Estructura
 
 El código principal se encuentra en la carpeta `core/` y está organizado en módulos de modelo, ledger y vistas (CLI y GUI).
