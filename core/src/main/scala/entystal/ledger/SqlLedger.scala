@@ -83,6 +83,28 @@ class SqlLedger(xa: Transactor[Task]) extends Ledger {
 
     combined.transact(xa).orDie
   }
+
+  override def updateEntry(id: String, value: String): UIO[Unit] = {
+    val qAsset      = sql"UPDATE asset SET description = $value WHERE id = $id".update.run
+    val qLiability  = sql"UPDATE liability SET description = $value WHERE id = $id".update.run
+    val qInvestment = sql"UPDATE investment SET description = $value WHERE id = $id".update.run
+    (for {
+      _ <- qAsset
+      _ <- qLiability
+      _ <- qInvestment
+    } yield ()).transact(xa).orDie
+  }
+
+  override def deleteEntry(id: String): UIO[Unit] = {
+    val qAsset      = sql"DELETE FROM asset WHERE id = $id".update.run
+    val qLiability  = sql"DELETE FROM liability WHERE id = $id".update.run
+    val qInvestment = sql"DELETE FROM investment WHERE id = $id".update.run
+    (for {
+      _ <- qAsset
+      _ <- qLiability
+      _ <- qInvestment
+    } yield ()).transact(xa).orDie
+  }
 }
 
 object SqlLedger {

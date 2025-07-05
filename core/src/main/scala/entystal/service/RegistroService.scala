@@ -8,36 +8,10 @@ import zio.{Runtime, UIO}
 
 /** Servicio que registra y consulta el ledger */
 class RegistroService(private val ledger: Ledger) {
-  private val runtime                          = Runtime.default
-  def registrarActivo(asset: Asset): UIO[Unit] =
-    ledger.recordAsset(asset)
-
-  /** Registra un activo, pasivo o inversión y devuelve un mensaje de confirmación */
-  def registrar(data: RegistroData): String = {
-    val ts = System.currentTimeMillis()
-    data.tipo match {
-      case "activo" =>
-        val asset = DataAsset(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordAsset(asset)).getOrThrow()
-        }
-      case "pasivo" =>
-        val liab = EthicalLiability(data.identificador, data.descripcion, ts, BigDecimal(1))
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordLiability(liab)).getOrThrow()
-        }
-      case _        =>
-        val qty = BigDecimal(data.descripcion)
-        val inv = BasicInvestment(data.identificador, qty, ts)
-        zio.Unsafe.unsafe { implicit u =>
-          runtime.unsafe.run(ledger.recordInvestment(inv)).getOrThrow()
-        }
-    }
-    "Registro completado"
-  }
-
-  def registrarInversion(investment: Investment): UIO[Unit] =
-    ledger.recordInvestment(investment)
+  private val runtime                                       = Runtime.default
+  def registrarActivo(asset: Asset): UIO[Unit]              = ledger.recordAsset(asset)
+  def registrarPasivo(liability: Liability): UIO[Unit]      = ledger.recordLiability(liability)
+  def registrarInversion(investment: Investment): UIO[Unit] = ledger.recordInvestment(investment)
 
   /** Crea el modelo correspondiente a partir de los datos y lo registra */
   def registrar(data: RegistroData): UIO[Unit] =
@@ -60,6 +34,12 @@ class RegistroService(private val ledger: Ledger) {
         )
       case _           => zio.ZIO.unit
     }
+
+  def actualizar(id: String, valor: String): UIO[Unit] =
+    ledger.updateEntry(id, valor)
+
+  def eliminar(id: String): UIO[Unit] =
+    ledger.deleteEntry(id)
 
   /** Suma los totales de activos, pasivos e inversiones */
   def aggregateTotals(): UIO[(BigDecimal, BigDecimal, BigDecimal)] =
