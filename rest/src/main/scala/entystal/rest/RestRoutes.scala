@@ -10,6 +10,7 @@ import io.circe.{Decoder, Encoder, Json}
 import io.circe.generic.auto._
 import entystal.service.RegistroService
 import entystal.viewmodel.RegistroData
+import entystal.InputValidators
 import entystal.ledger._
 import zio.{Runtime, Unsafe}
 
@@ -43,11 +44,17 @@ class RestRoutes(service: RegistroService)(implicit runtime: Runtime[Any]) {
     case req @ POST -> Root / "registro" =>
       for {
         data <- req.as[RegistroData]
-        _    <- IO.blocking(Unsafe.unsafe { implicit u =>
-                  runtime.unsafe.run(service.registrar(data)).getOrThrow()
-                })
-        _    <- Metrics.record()
-        resp <- Ok("ok")
+        resp <- InputValidators.RegistroDataValidator.validate(data) match {
+                  case Left(err) => BadRequest(err)
+                  case Right(_)  =>
+                    for {
+                      _    <- IO.blocking(Unsafe.unsafe { implicit u =>
+                                runtime.unsafe.run(service.registrar(data)).getOrThrow()
+                              })
+                      _    <- Metrics.record()
+                      resp <- Ok("ok")
+                    } yield resp
+                }
       } yield resp
 
     case GET -> Root / "historial" =>
