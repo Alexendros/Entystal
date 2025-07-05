@@ -29,7 +29,7 @@ object SqlLedgerSpec extends ZIOSpecDefault {
           }
           .tapError(e => ZIO.logError(s"No se pudo conectar a PostgreSQL: ${e.getMessage}"))
           .orElseSucceed(false)
-      case _ =>
+      case _                        =>
         ZIO.logWarning("Credenciales de PostgreSQL no definidas") *> ZIO.succeed(false)
     }
 
@@ -47,7 +47,7 @@ object SqlLedgerSpec extends ZIOSpecDefault {
             None
           )
         }
-      case _ =>
+      case _                        =>
         ZIO.fail(new Exception("Credenciales de PostgreSQL no definidas"))
     }
   }
