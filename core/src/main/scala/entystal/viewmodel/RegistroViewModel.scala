@@ -47,6 +47,7 @@ class RegistroViewModel(
 
     val data = RegistroData(tipo.value, identificador.value, descripcion.value)
     service.registrar(data)
+    notifier.success("Registro completado")
   }
 
   /** Exporta el historial a CSV y devuelve mensaje de confirmación */
