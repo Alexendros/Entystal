@@ -1,7 +1,19 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
+import scalafx.scene.control.{
+  Alert,
+  Button,
+  ChoiceBox,
+  Label,
+  Menu,
+  MenuBar,
+  MenuItem,
+  Tab,
+  TabPane,
+  TextField,
+  Tooltip
+}
 import scalafx.scene.layout.{GridPane, VBox}
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
@@ -10,7 +22,6 @@ import entystal.viewmodel.RegistroViewModel
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
 import entystal.ledger.Ledger
-import entystal.i18n.I18n
 import zio.Runtime
 import java.util.Locale
 
@@ -29,13 +40,20 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     }
   private val idField          = new TextField() { text <==> vm.identificador }
   private val descField        = new TextField() { text <==> vm.descripcion }
+  private val registrarTooltip = new Tooltip()
   private val registrarBtn     = new Button() {
     disable <== vm.puedeRegistrar.not()
+    mnemonicParsing = true
     onAction = _ => vm.registrar()
+    tooltip = registrarTooltip
   }
   private val themeBtn         = new Button("Cambiar tema") {
     onAction = _ => toggleTheme()
   }
+
+  private val acercaItem = new MenuItem() { onAction = _ => mostrarAcerca() }
+  private val ayudaMenu  = new Menu() { items = Seq(acercaItem) }
+  private val menuBar    = new MenuBar { menus = Seq(ayudaMenu) }
 
   tipoChoice.value.onChange { (_, _, _) => updateTexts() }
   langChoice.value.onChange { (_, _, nv) =>
@@ -97,7 +115,15 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
   }
 
   val scene = new Scene(600, 400) {
-    root = tabPane
+    root = new VBox(menuBar, tabPane)
     stylesheets += ThemeManager.loadTheme().css
+  }
+
+  private def mostrarAcerca(): Unit = {
+    new Alert(Alert.AlertType.Information) {
+      title = I18n("menu.acerca")
+      headerText = "Entystal"
+      contentText = I18n("about.info")
+    }.showAndWait()
   }
 }
