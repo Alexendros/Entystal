@@ -1,6 +1,14 @@
 package entystal.view
 
-import scalafx.scene.control.{Button, ContentDisplay, TableCell, TableColumn, TableView, TextField}
+import scalafx.scene.control.{
+  Button,
+  ContentDisplay,
+  TableCell,
+  TableColumn,
+  TableView,
+  TextField,
+  Tooltip
+}
 import scalafx.scene.layout.{HBox, VBox}
 import scalafx.stage.Stage
 import scalafx.scene.Scene
@@ -20,6 +28,7 @@ class BusquedaView(ledger: Ledger)(implicit runtime: Runtime[Any]) {
 
   private val buscarBtn = new Button(I18n("button.buscar")) {
     onAction = _ => cargar(buscarField.text.value)
+    tooltip = buscarTooltip
   }
 
   val tabla = new TableView[LedgerEntry]() {

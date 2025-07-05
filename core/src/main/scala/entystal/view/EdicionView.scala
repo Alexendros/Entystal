@@ -17,6 +17,5 @@ class EdicionView(entry: LedgerEntry) {
     case _                                   => ""
   }
   val guardarBtn       = new Button(I18n("button.guardar"))
-
   val root = new VBox(10, titulo, campo, guardarBtn)
 }

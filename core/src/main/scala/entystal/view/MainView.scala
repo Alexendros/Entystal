@@ -1,8 +1,19 @@
 package entystal.view
 
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, ChoiceBox, Label, Tab, TabPane, TextField}
-import scalafx.scene.layout.{GridPane, VBox}
+import scalafx.scene.control.{
+  Button,
+  ChoiceBox,
+  Label,
+  Tab,
+  TabPane,
+  TextField,
+  MenuBar,
+  Menu,
+  MenuItem
+}
+import scalafx.scene.layout.{BorderPane, GridPane, VBox}
+import scalafx.application.Platform
 import scalafx.collections.ObservableBuffer
 import scalafx.Includes._
 import scalafx.geometry.Insets
@@ -15,7 +26,12 @@ import java.util.Locale
 
 /** Vista principal con pestañas de registro y búsqueda */
 
-class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[Any]) {
+class MainView(
+    vm: RegistroViewModel,
+    ledger: Ledger,
+    statusLabel: Label,
+    notifier: StatusNotifier
+)(implicit runtime: Runtime[Any]) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
@@ -28,9 +44,32 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     }
   private val idField          = new TextField() { text <==> vm.identificador }
   private val descField        = new TextField() { text <==> vm.descripcion }
+  private val registrarTooltip = new Tooltip()
   private val registrarBtn     = new Button() {
     disable <== vm.puedeRegistrar.not()
+    mnemonicParsing = true
     onAction = _ => vm.registrar()
+    tooltip = registrarTooltip
+  }
+  private val themeBtn         = new Button("Cambiar tema") {
+    onAction = _ => toggleTheme()
+  }
+
+  private val exportCsvItem = new MenuItem()
+  private val exportPdfItem = new MenuItem()
+  private val exitItem      = new MenuItem()
+  private val languageMenu  = new Menu()
+  private val menuBar       = new MenuBar {
+    menus = Seq(
+      new Menu("Archivo") {
+        items = Seq(exportCsvItem, exportPdfItem, exitItem)
+      },
+      languageMenu
+    )
+  }
+
+  private val statusBar = new VBox(statusLabel) {
+    styleClass += "status-bar"
   }
 
   tipoChoice.value.onChange { (_, _, _) => updateTexts() }
@@ -47,10 +86,26 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     idField.promptText = I18n("prompt.id")
     descField.promptText = I18n("prompt.desc")
     registrarBtn.text = I18n("button.registrar")
+    exportCsvItem.text = I18n("menu.exportCsv")
+    exportPdfItem.text = I18n("menu.exportPdf")
+    exitItem.text = I18n("menu.exit")
+    languageMenu.text = I18n("menu.language")
   }
 
   I18n.register(() => updateTexts())
   updateTexts()
+
+  statusLabel.text = I18n("status.ready")
+
+  exportCsvItem.onAction = _ => notifier.success(vm.exportCsv())
+  exportPdfItem.onAction = _ => notifier.success(vm.exportPdf())
+  exitItem.onAction = _ => Platform.exit()
+
+  languageMenu.items = I18n.supportedLocales.map { loc =>
+    new MenuItem(loc.getLanguage) {
+      onAction = _ => I18n.setLocale(loc)
+    }
+  }
 
   private val registroPane = new VBox(10) {
     padding = Insets(20)
@@ -66,7 +121,8 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
         add(descField, 1, 2)
       },
       langChoice,
-      registrarBtn
+      registrarBtn,
+      themeBtn
     )
   }
 
@@ -81,8 +137,22 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     )
   }
 
+  private val rootPane = new BorderPane {
+    top = menuBar
+    center = tabPane
+    bottom = statusBar
+  }
+
   val scene = new Scene(600, 400) {
-    root = tabPane
+    root = rootPane
     stylesheets += ThemeManager.loadTheme().css
+  }
+
+  private def mostrarAcerca(): Unit = {
+    new Alert(Alert.AlertType.Information) {
+      title = I18n("menu.acerca")
+      headerText = "Entystal"
+      contentText = I18n("about.info")
+    }.showAndWait()
   }
 }
