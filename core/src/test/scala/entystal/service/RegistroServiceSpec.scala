@@ -92,4 +92,32 @@ class RegistroServiceSpec extends AnyFlatSpec with Matchers {
     assert(tmpPdf.toFile.exists())
     tmpPdf.toFile.delete()
   }
+
+  "registrarActivo" should "almacenar un Asset" in {
+    val rt     = zio.Runtime.default
+    val ledger = zio.Unsafe.unsafe { implicit u =>
+      rt.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
+    }
+    val service = new RegistroService(ledger)
+    val asset   = DataAsset("ax", "d", 1L, BigDecimal(2))
+    zio.Unsafe.unsafe { implicit u =>
+      rt.unsafe.run(service.registrarActivo(asset)).getOrThrow()
+    }
+    val hist    = zio.Unsafe.unsafe { implicit u => rt.unsafe.run(ledger.getHistory).getOrThrow() }
+    hist.exists { case AssetEntry(a) => a.id == "ax"; case _ => false } shouldBe true
+  }
+
+  "registrarPasivo" should "almacenar un Liability" in {
+    val rt     = zio.Runtime.default
+    val ledger = zio.Unsafe.unsafe { implicit u =>
+      rt.unsafe.run(zio.ZIO.scoped(InMemoryLedger.live.build.map(_.get))).getOrThrow()
+    }
+    val service  = new RegistroService(ledger)
+    val liability = BasicLiability("lx", BigDecimal(3), 2L)
+    zio.Unsafe.unsafe { implicit u =>
+      rt.unsafe.run(service.registrarPasivo(liability)).getOrThrow()
+    }
+    val hist = zio.Unsafe.unsafe { implicit u => rt.unsafe.run(ledger.getHistory).getOrThrow() }
+    hist.exists { case LiabilityEntry(l) => l.id == "lx"; case _ => false } shouldBe true
+  }
 }
