@@ -33,6 +33,9 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     disable <== vm.puedeRegistrar.not()
     onAction = _ => vm.registrar()
   }
+  private val themeBtn         = new Button("Cambiar tema") {
+    onAction = _ => toggleTheme()
+  }
 
   tipoChoice.value.onChange { (_, _, _) => updateTexts() }
   langChoice.value.onChange { (_, _, nv) =>
@@ -48,10 +51,20 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
     idField.promptText = I18n("prompt.id")
     descField.promptText = I18n("prompt.desc")
     registrarBtn.text = I18n("button.registrar")
+    themeBtn.text = I18n("button.cambiarTema")
   }
 
   I18n.register(() => updateTexts())
   updateTexts()
+
+  private def toggleTheme(): Unit = {
+    val current = ThemeManager.loadTheme()
+    val next    = current match {
+      case ThemeManager.Light => ThemeManager.Dark
+      case ThemeManager.Dark  => ThemeManager.Light
+    }
+    ThemeManager.applyTheme(scene, next)
+  }
 
   private val registroPane = new VBox(10) {
     padding = Insets(20)
@@ -67,7 +80,8 @@ class MainView(vm: RegistroViewModel, ledger: Ledger)(implicit runtime: Runtime[
         add(descField, 1, 2)
       },
       langChoice,
-      registrarBtn
+      registrarBtn,
+      themeBtn
     )
   }
 
