@@ -110,6 +110,15 @@ sbt coverage test coverageAggregate
 ```
 El reporte HTML quedará en `target/scala-*/scoverage-report/index.html`.
 
+## Reportes de seguridad (OWASP ZAP)
+
+Cada ejecución del workflow `ZAP Scan` genera los archivos `report_html.html`,
+`report_md.md` y `report_json.json`.
+Para revisarlos:
+
+1. En GitHub abre la pestaña **Actions** y elige el job `ZAP Scan` deseado.
+2. Descarga el artefacto **zap-report** y abre `report_html.html` en tu navegador.
+
 
 ## Traducciones
 
