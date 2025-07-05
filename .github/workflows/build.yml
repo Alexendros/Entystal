@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17.3
         env:
           POSTGRES_USER: ${{ secrets.PGUSER }}
           POSTGRES_PASSWORD: ${{ secrets.PGPASSWORD }}
@@ -38,11 +38,11 @@ jobs:
           apps: sbt
       - name: Instalar cliente PostgreSQL
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
-      - name: Inicializar base de datos
+      - name: Inicializar base de datos y aplicar parches
         env:
           PGUSER: ${{ secrets.PGUSER }}
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
-        run: psql -h localhost -d entystal -f core/sql/entystal_schema.sql
+        run: bash scripts/apply_db_patches.sh "-h localhost -d entystal"
       - name: Formateo y análisis estático
         env:
           PGUSER: ${{ secrets.PGUSER }}
