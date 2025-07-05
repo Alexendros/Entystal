@@ -3,6 +3,9 @@ package entystal.cli
 import entystal._
 import entystal.ledger._
 import entystal.model._
+import entystal.service.RegistroService
+import entystal.viewmodel.RegistroData
+import entystal.InputValidators
 import zio._
 import scopt.OParser
 
@@ -15,8 +18,9 @@ case class Config(
 )
 
 object Main extends ZIOAppDefault {
-  val builder = OParser.builder[Config]
-  val parser  = {
+  private val validator = InputValidators.RegistroDataValidator
+  val builder           = OParser.builder[Config]
+  val parser            = {
     import builder._
     OParser.sequence(
       programName("entystal-cli"),
@@ -32,34 +36,32 @@ object Main extends ZIOAppDefault {
   def run =
     ZIOAppArgs.getArgs.flatMap { appArgs =>
       OParser.parse(parser, appArgs.toList, Config()) match {
-        case Some(cfg) if cfg.mode == "asset" && cfg.assetId.nonEmpty && cfg.assetDesc.nonEmpty =>
-          for {
-            ledger <- EntystalModule.layer.build.map(_.get)
-            ts      = java.lang.System.currentTimeMillis
-            asset   = DataAsset(cfg.assetId.get, cfg.assetDesc.get, ts, BigDecimal(1))
-            _      <- ledger.recordAsset(asset)
-            _      <- Console.printLine(s"Registrado activo: $asset")
-          } yield ()
-        case Some(cfg)
-            if cfg.mode == "liability" && cfg.assetId.nonEmpty && cfg.liabilityDesc.nonEmpty =>
-          for {
-            ledger   <- EntystalModule.layer.build.map(_.get)
-            ts        = java.lang.System.currentTimeMillis
-            liability = EthicalLiability(cfg.assetId.get, cfg.liabilityDesc.get, ts, BigDecimal(1))
-            _        <- ledger.recordLiability(liability)
-            _        <- Console.printLine(s"Registrado pasivo: $liability")
-          } yield ()
-        case Some(cfg)
-            if cfg.mode == "investment" && cfg.assetId.nonEmpty && cfg.investmentQty.nonEmpty =>
-          for {
-            ledger    <- EntystalModule.layer.build.map(_.get)
-            ts         = java.lang.System.currentTimeMillis
-            investment = BasicInvestment(cfg.assetId.get, cfg.investmentQty.get, ts)
-            _         <- ledger.recordInvestment(investment)
-            _         <- Console.printLine(s"Registrada inversión: $investment")
-          } yield ()
-        case _                                                                                  =>
-          Console.printLine("Par\u00e1metros insuficientes o incorrectos.")
+        case Some(cfg) =>
+          val tipo = cfg.mode match {
+            case "asset"      => "activo"
+            case "liability"  => "pasivo"
+            case "investment" => "inversion"
+            case other        => other
+          }
+          val desc = cfg.mode match {
+            case "asset"      => cfg.assetDesc.getOrElse("")
+            case "liability"  => cfg.liabilityDesc.getOrElse("")
+            case "investment" => cfg.investmentQty.map(_.toString).getOrElse("")
+            case _            => ""
+          }
+          val data = RegistroData(tipo, cfg.assetId.getOrElse(""), desc)
+          validator.validate(data) match {
+            case Left(err) => Console.printLine(err)
+            case Right(_)  =>
+              for {
+                ledger <- EntystalModule.layer.build.map(_.get)
+                service = new RegistroService(ledger)
+                _      <- service.registrar(data)
+                _      <- Console.printLine(s"Registrado ${data.tipo}: ${data.identificador}")
+              } yield ()
+          }
+        case _         =>
+          Console.printLine("Parámetros insuficientes o incorrectos.")
       }
     }
 }
