@@ -27,3 +27,13 @@ CREATE TABLE IF NOT EXISTS investment (
   participants INTEGER,
   hours INTEGER
 );
+
+-- Seguridad a nivel de fila
+ALTER TABLE asset ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_assets ON asset FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE liability ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_liabilities ON liability FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE investment ENABLE ROW LEVEL SECURITY;
+CREATE POLICY all_investments ON investment FOR ALL USING (true) WITH CHECK (true);
