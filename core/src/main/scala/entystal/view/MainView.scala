@@ -46,9 +46,15 @@ class MainView(
     }
   private val idField          = new TextField() { text <==> vm.identificador }
   private val descField        = new TextField() { text <==> vm.descripcion }
+  private val registrarTooltip = new Tooltip()
   private val registrarBtn     = new Button() {
     disable <== vm.puedeRegistrar.not()
+    mnemonicParsing = true
     onAction = _ => vm.registrar()
+    tooltip = registrarTooltip
+  }
+  private val themeBtn         = new Button("Cambiar tema") {
+    onAction = _ => toggleTheme()
   }
 
   private val exportCsvItem = new MenuItem()
@@ -117,7 +123,8 @@ class MainView(
         add(descField, 1, 2)
       },
       langChoice,
-      registrarBtn
+      registrarBtn,
+      themeBtn
     )
   }
 
@@ -141,5 +148,13 @@ class MainView(
   val scene = new Scene(600, 400) {
     root = rootPane
     stylesheets += ThemeManager.loadTheme().css
+  }
+
+  private def mostrarAcerca(): Unit = {
+    new Alert(Alert.AlertType.Information) {
+      title = I18n("menu.acerca")
+      headerText = "Entystal"
+      contentText = I18n("about.info")
+    }.showAndWait()
   }
 }

@@ -86,6 +86,11 @@ Si generaste el JAR ensamblado también puedes ejecutarlo con:
 java -jar target/scala-2.13/entystal-core-assembly-*.jar
 ```
 
+#### Cambio de tema
+
+En la pestaña **Registro** hay un botón *Cambiar tema*. Al pulsarlo se alterna
+entre modo claro y oscuro y la aplicación recordará tu preferencia.
+
 Antes de utilizar `SqlLedger` recuerda aplicar el script `core/sql/entystal_schema.sql` en tu instancia de PostgreSQL.
 
 ## Pruebas de integración
