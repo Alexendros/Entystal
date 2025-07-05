@@ -7,11 +7,28 @@ import org.apache.pdfbox.pdmodel.{PDDocument, PDPage}
 import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.pdmodel.PDPageContentStream
+import java.nio.file.{Files, Path, Paths}
 
 /** Utilidad para exportar el historial del ledger a un PDF sencillo */
 object PdfExporter {
+
+  /** Directorio permitido para las exportaciones */
+  val baseDir: Path = {
+    val dir = Paths.get("target", "exports").toAbsolutePath.normalize
+    Files.createDirectories(dir)
+    dir
+  }
+
+  private def validatePath(path: String): Path = {
+    val p = Paths.get(path).toAbsolutePath.normalize
+    if (!p.startsWith(baseDir))
+      throw new IllegalArgumentException(s"Ruta fuera de directorio permitido: $path")
+    p
+  }
+
   def save(entries: List[LedgerEntry], path: String): Task[Unit] =
     ZIO.attempt {
+      val valid  = validatePath(path)
       val doc    = new PDDocument()
       val page   = new PDPage(PDRectangle.LETTER)
       doc.addPage(page)
@@ -32,7 +49,7 @@ object PdfExporter {
         stream.endText()
       } finally {
         stream.close()
-        doc.save(path)
+        doc.save(valid.toString)
         doc.close()
       }
     }

@@ -10,7 +10,9 @@ import scalafx.scene.control.{
   TextField,
   MenuBar,
   Menu,
-  MenuItem
+  MenuItem,
+  Alert,
+  Tooltip
 }
 import scalafx.scene.layout.{BorderPane, GridPane, VBox}
 import scalafx.application.Platform
@@ -21,6 +23,7 @@ import entystal.viewmodel.RegistroViewModel
 import entystal.gui.ThemeManager
 import entystal.i18n.I18n
 import entystal.ledger.Ledger
+import entystal.service.StatusNotifier
 import zio.Runtime
 import java.util.Locale
 
@@ -29,12 +32,12 @@ import java.util.Locale
 class MainView(
     vm: RegistroViewModel,
     ledger: Ledger,
-    statusLabel: Label,
-    notifier: StatusNotifier
+    statusLabel: Label = new Label("")
 )(implicit runtime: Runtime[Any]) {
   private val labelTipo        = new Label()
   private val labelId          = new Label()
   private val labelDescripcion = new Label()
+  private val notifier         = new StatusNotifier(statusLabel)
   private val langChoice       = new ChoiceBox[String](ObservableBuffer("es", "en")) {
     value = I18n.locale.value.getLanguage
   }
@@ -45,7 +48,7 @@ class MainView(
   private val idField          = new TextField() { text <==> vm.identificador }
   private val descField        = new TextField() { text <==> vm.descripcion }
   private val registrarTooltip = new Tooltip()
-  private val registrarBtn     = new Button() {
+  val registrarBtn             = new Button() {
     disable <== vm.puedeRegistrar.not()
     mnemonicParsing = true
     onAction = _ => vm.registrar()
@@ -146,6 +149,14 @@ class MainView(
   val scene = new Scene(600, 400) {
     root = rootPane
     stylesheets += ThemeManager.loadTheme().css
+  }
+
+  private def toggleTheme(): Unit = {
+    val nuevo = ThemeManager.loadTheme() match {
+      case ThemeManager.Dark  => ThemeManager.Light
+      case ThemeManager.Light => ThemeManager.Dark
+    }
+    ThemeManager.applyTheme(scene, nuevo)
   }
 
   private def mostrarAcerca(): Unit = {

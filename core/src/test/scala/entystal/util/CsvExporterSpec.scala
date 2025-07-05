@@ -9,7 +9,7 @@ import zio.Runtime
 class CsvExporterSpec extends AnyFlatSpec with Matchers {
   "CsvExporter" should "generar un fichero con cabecera" in {
     val entries = List(AssetEntry(DataAsset("a1", "info", 1L, BigDecimal(1))))
-    val tmp     = java.nio.file.Files.createTempFile("hist", ".csv")
+    val tmp     = java.nio.file.Files.createTempFile(CsvExporter.baseDir, "hist", ".csv")
     val rt      = Runtime.default
     zio.Unsafe.unsafe { implicit u =>
       rt.unsafe
